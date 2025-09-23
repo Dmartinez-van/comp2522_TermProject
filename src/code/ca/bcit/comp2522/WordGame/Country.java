@@ -1,4 +1,4 @@
-package ca.bcit.comp2522.MyGame;
+package ca.bcit.comp2522.WordGame;
 
 public class Country
 {
