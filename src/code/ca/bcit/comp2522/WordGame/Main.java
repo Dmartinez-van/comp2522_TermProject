@@ -1,5 +1,7 @@
 package ca.bcit.comp2522.WordGame;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -13,40 +15,64 @@ import java.util.Scanner;
 public class Main
 {
     /**
-     * Runner method for the game loop
+     * Runner method for the game loop.
+     * First, load all game inputs into the appropriate data structures
+     * Second, initiate game loop, checking for user input to begin another round or end program
+     *
      * @param args captures user's input to either continue playing game or end program
+     * @throws FileNotFoundException if input file is not found
      */
-    public static void main(final String[] args)
+    public static void main(final String[] args) throws FileNotFoundException
     {
-        final Scanner sc;
+        // Setup file reader
+        final String  folderPath;
+        final File    folder;
+        final File[]  files;
+
+        // Setup scores list
         final List<Score> scores;
 
-        sc     = new Scanner(System.in);
+        // Instantiate file reading
+        folderPath = "./src/code/ca/bcit/comp2522/wordgame/inputs";
+        folder     = new File(folderPath);
+        files      = folder.listFiles();
+
+        // Instantiate scores array
         scores = new ArrayList<>();
 
-        while (sc.hasNextLine())
+        // Immediately exit program if there are no input files to populate game with
+        if (files == null || files.length == 0)
         {
-            // TODO: If user enters "no" any case -> exit game & return to main menu
-            if (sc.next().equalsIgnoreCase("no"))
+            System.err.println("No files found in: " + folder.getAbsolutePath());
+            return;
+        }
+
+        for (final File file : files)
+        {
+            if (!file.isFile())
             {
-                break;
+                continue;
             }
 
-            if (sc.next().equalsIgnoreCase("yes"))
+            // Process file
+            final Scanner fileScanner;
+            fileScanner = new Scanner(file);
+
+            try
             {
-                //TODO: Run game loop again
-                // new score object, etc. At end of game, add score to running
-                // List of scores.
-                break;
+                while (fileScanner.hasNextLine())
+                {
+                    String line = fileScanner.nextLine();
+                    //TODO: Parse each line and save data to correct place.
+                }
+            }
+            catch (final RuntimeException e)
+            {
+                System.err.println("File not found: " + e.getMessage());
             }
 
-            //TODO: If anything other than "yes" or "no" throw clear error message
-            // and repeat the prompt for user
-            else
-            {
-                //TODO: Might replace with constants -> OPTION_ONE and OPTION_TWO
-                System.out.println("ERROR: Must enter 'yes' or 'no'");
-            }
+            // End loading input files
+            fileScanner.close();
         }
     }
 }

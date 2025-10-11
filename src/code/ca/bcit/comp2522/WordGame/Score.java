@@ -1,6 +1,5 @@
 package ca.bcit.comp2522.WordGame;
 
-import javax.swing.text.html.HTMLDocument;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -219,6 +218,11 @@ final public class Score
         return gameScore;
     }
 
+    /**
+     * Returns instance data as a sentence
+     *
+     * @return a string sentence of instance data
+     */
     @Override
     public String toString()
     {
