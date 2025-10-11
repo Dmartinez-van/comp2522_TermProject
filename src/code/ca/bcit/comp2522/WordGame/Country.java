@@ -1,22 +1,31 @@
 package ca.bcit.comp2522.WordGame;
 
+/**
+ * Country
+ *
+ * @author David Martinez
+ * @version 1.0
+ */
 public class Country
 {
     private final String name;
     private final String capitalCityName;
 
-    /*
-    0 -> fact 1,
-    1 -> fact 2, etc
-     */
-    private final int[] facts;
+    private final int[]  facts;
 
+    /**
+     * Full constructor
+     *
+     * @param name the name of this country
+     * @param capitalCityName the name of the capital city of this country
+     * @param facts a list of facts about this country
+     */
     public Country(final String name,
                    final String capitalCityName,
                    final int[] facts)
     {
-        checkName(name);
-        checkCapitalCityName(capitalCityName);
+        checkString(name);
+        checkString(capitalCityName);
         checkFacts(facts);
 
         this.name = name;
@@ -24,27 +33,27 @@ public class Country
         this.facts = facts;
     }
 
-    private void checkName(final String name)
+    /*
+    Checks for null and blankness, invalid if either is true
+    Throws new IllegalArgumentException
+     */
+    private void checkString(final String s)
     {
-        if (name == null || name.isBlank())
+        if (s == null || s.isBlank())
         {
-            throw new IllegalArgumentException("Name cannot be null or blank");
+            throw new IllegalArgumentException("Cannot have null or blank strings");
         }
     }
 
-    private void checkCapitalCityName(final String capitalCityName)
-    {
-        if (capitalCityName == null || capitalCityName.isBlank())
-        {
-            throw new IllegalArgumentException("Capital city name cannot be null or blank");
-        }
-    }
-
+    /*
+    Check for null list, invalid if null
+    Throws new IllegalArgumentException
+     */
     private void checkFacts(final int[] facts)
     {
-        if (facts == null || facts.length == 0)
+        if (facts == null)
         {
-            throw new IllegalArgumentException("Facts cannot be null or empty");
+            throw new IllegalArgumentException("Must instantiate with a non-null list");
         }
     }
 
@@ -77,4 +86,6 @@ public class Country
     {
         return facts;
     }
+
+
 }

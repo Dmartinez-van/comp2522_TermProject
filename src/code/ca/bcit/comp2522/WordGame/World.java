@@ -3,16 +3,39 @@ package ca.bcit.comp2522.WordGame;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Word class
+ *
+ * @author David Martinez
+ * @version 1.0
+ */
 public class World
 {
-    // hashmap of all the countries in the game
     private final Map<String, Country> countries;
 
-    public World()
+    /**
+     * Full constructor
+     *
+     * @param countries this world's counties as a Map
+     */
+    public World(final Map<String, Country> countries)
     {
-        countries = new HashMap<String, Country>();
+        checkMap(countries);
+
+        this.countries = countries;
     }
 
+    /*
+    Check if map is null, invalid if true
+    Throws new IllegalArgumentException
+     */
+    private void checkMap(final Map<String, Country> countries)
+    {
+        if (countries == null)
+        {
+            throw new IllegalArgumentException("countries cannot be null");
+        }
+    }
 
 
 }
