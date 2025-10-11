@@ -1,7 +1,11 @@
 package ca.bcit.comp2522.WordGame;
 
+import javax.swing.text.html.HTMLDocument;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
 
 /**
  * Score class
@@ -36,7 +40,7 @@ final public class Score
      * @param numIncorrectSecondAttempt The number of incorrect answers after
      *                                  the user attempts twice
      */
-    Score (final LocalDateTime dateTimePlayed,
+    public Score (final LocalDateTime dateTimePlayed,
            final int numGamesPlayed,
            final int numCorrectFirstAttempt,
            final int numCorrectSecondAttempt,
@@ -49,6 +53,61 @@ final public class Score
         this.numCorrectFirstAttempt = numCorrectFirstAttempt;
         this.numCorrectSecondAttempt = numCorrectSecondAttempt;
         this.numIncorrectSecondAttempt = numIncorrectSecondAttempt;
+    }
+
+    /**
+     * Write score to a specified file
+     *
+     * @param score the score to write to file
+     * @param scoreFile the output file name
+     */
+    public static void appendScoreToFile(final Score score, final String scoreFile)
+    {
+    }
+
+    /**
+     * Read scores from file
+     *
+     * @param scoreFile the file to read scores from
+     * @return a {@code List<Score>} containing scores from a file
+     */
+    public static List<Score> readScoresFromFile(final String scoreFile)
+    {
+        //TODO: Read from file and return a List<Score>
+        final List<Score> scores;
+        final Scanner sc;
+
+        scores = new ArrayList<>();
+        sc = new Scanner(scoreFile);
+
+        //TODO: Something like this
+        while (sc.hasNext())
+        {
+            final Score scoreItem;
+            //TODO: Parse the file, likely will save record each row
+            // dateTimePlayed, numOfGames, numFirstAttemptCorrect, numSecondAttemptCorrect, numIncorrect
+            final LocalDateTime dateTimePlayed;
+            final int numOfGames;
+            final int numFirstAttemptCorrect;
+            final int numSecondAttemptCorrect;
+            final int numIncorrectSecondAttempt;
+
+            dateTimePlayed            = LocalDateTime.parse(sc.next());
+            numOfGames                = Integer.parseInt(sc.next());
+            numFirstAttemptCorrect    = Integer.parseInt(sc.next());
+            numSecondAttemptCorrect   = Integer.parseInt(sc.next());
+            numIncorrectSecondAttempt = Integer.parseInt(sc.next());
+
+            scoreItem = new Score(dateTimePlayed,
+                                  numOfGames,
+                                  numFirstAttemptCorrect,
+                                  numSecondAttemptCorrect,
+                                  numIncorrectSecondAttempt);
+
+            scores.add(scoreItem);
+        }
+
+        return scores;
     }
 
     /**
@@ -134,7 +193,7 @@ final public class Score
     }
 
     /**
-     * Calculate the score of the current game.
+     * Getter for the score of the current game.
      * {@value #CORRECT_FIRST_GUESS_PTS} points for FIRST attempt correct
      * {@value #CORRECT_SECOND_GUESS_PTS} points for SECOND attempt correct
      * {@value #INCORRECT_GUESS_PTS} points after {@value #MAX_GUESSES} incorrect
@@ -142,7 +201,7 @@ final public class Score
      *
      * @return the points total based on correct and incorrect answers.
      */
-    private int calculateScore()
+    public int getScore()
     {
         final int gameScore;
         final int firstAttemptScore;
@@ -168,7 +227,7 @@ final public class Score
 
         sb = new StringBuilder();
 
-        gameScore = calculateScore();
+        gameScore = getScore();
 
         //TODO Will eventually be used to write to 'score.txt' file
         sb.append("Date and Time: ");
