@@ -14,6 +14,8 @@ import java.util.Scanner;
  */
 public class Main
 {
+    private final static int NUM_OF_FACTS = 3;
+
     /**
      * Runner method for the game loop.
      * First, load all game inputs into the appropriate data structures
@@ -24,27 +26,44 @@ public class Main
      */
     public static void main(final String[] args) throws FileNotFoundException
     {
-        // Setup file reader
-        final String  folderPath;
-        final File    folder;
-        final File[]  files;
-
-        // Setup scores list
+        final List<Country> countries;
         final List<Score> scores;
+        final String folderPath;
 
-        // Instantiate file reading
         folderPath = "./src/code/ca/bcit/comp2522/wordgame/inputs";
-        folder     = new File(folderPath);
-        files      = folder.listFiles();
-
-        // Instantiate scores array
+        countries = loadCountriesFromFolder(folderPath);
         scores = new ArrayList<>();
 
-        // Immediately exit program if there are no input files to populate game with
+        if (countries.isEmpty())
+        {
+            System.err.println("No countries were loaded from the input files.");
+            return;
+        }
+
+        // Your game logic here
+        countries.forEach(c -> System.out.println(c.toString()));
+    }
+
+    /**
+     * Loads all countries from text files in the specified folder.
+     *
+     * @param folderPath the path to the folder containing country data files
+     * @return a list of Country objects parsed from the files
+     */
+    private static List<Country> loadCountriesFromFolder(final String folderPath)
+    {
+        final List<Country> countries;
+        final File folder;
+        final File[] files;
+
+        countries = new ArrayList<>();
+        folder = new File(folderPath);
+        files = folder.listFiles();
+
         if (files == null || files.length == 0)
         {
             System.err.println("No files found in: " + folder.getAbsolutePath());
-            return;
+            return countries;
         }
 
         for (final File file : files)
@@ -54,25 +73,121 @@ public class Main
                 continue;
             }
 
-            // Process file
-            final Scanner fileScanner;
-            fileScanner = new Scanner(file);
-
             try
             {
-                while (fileScanner.hasNextLine())
-                {
-                    String line = fileScanner.nextLine();
-                    //TODO: Parse each line and save data to correct place.
-                }
+                final List<Country> fileCountries;
+                fileCountries = parseCountriesFromFile(file);
+                countries.addAll(fileCountries);
             }
-            catch (final RuntimeException e)
+            catch (final FileNotFoundException e)
             {
                 System.err.println("File not found: " + e.getMessage());
             }
+        }
 
-            // End loading input files
+        return countries;
+    }
+
+    /**
+     * Parses Country objects from a single file.
+     *
+     * @param file the file to parse
+     * @return a list of Country objects from the file
+     * @throws FileNotFoundException if the file cannot be found
+     */
+    private static List<Country> parseCountriesFromFile(final File file)
+            throws FileNotFoundException
+    {
+        final List<Country> countries;
+        final Scanner fileScanner;
+
+        countries = new ArrayList<>();
+        fileScanner = new Scanner(file);
+
+        try
+        {
+            while (fileScanner.hasNextLine())
+            {
+                final String firstLine;
+                firstLine = fileScanner.nextLine();
+
+                if (firstLine.isEmpty())
+                {
+                    continue;
+                }
+
+                final Country country;
+                country = parseCountry(firstLine, fileScanner);
+
+                if (country != null)
+                {
+                    countries.add(country);
+                }
+            }
+        }
+        finally
+        {
             fileScanner.close();
         }
+
+        return countries;
+    }
+
+    /**
+     * Parses a single Country object from the scanner.
+     *
+     * @param firstLine the line containing "CountryName:CapitalCity"
+     * @param scanner the scanner to read facts from
+     * @return a Country object, or null if parsing fails
+     */
+    private static Country parseCountry(final String firstLine,
+                                        final Scanner scanner)
+    {
+        final String[] countryData;
+        final Country  country;
+        final String   countryName;
+        final String   capitalCityName;
+        final String[] facts;
+        final StringBuilder factBuilder;
+
+        int factPointer;
+
+        countryData = firstLine.split(":");
+
+        if (countryData.length != 2)
+        {
+            return null;
+        }
+
+        countryName     = countryData[0].trim();
+        capitalCityName = countryData[1].trim();
+        facts           = new String[NUM_OF_FACTS];
+        factBuilder     = new StringBuilder();
+        factPointer     = 0;
+
+        while (scanner.hasNextLine())
+        {
+            final String line;
+            line = scanner.nextLine().trim();
+
+            if (line.isEmpty())
+            {
+                break;
+            }
+
+            factBuilder.append(line);
+
+            if (line.endsWith("."))
+            {
+                facts[factPointer] = factBuilder.toString();
+                factBuilder.setLength(0);
+                factPointer++;
+            }
+        }
+
+        country = new Country(countryName,
+                              capitalCityName,
+                              facts);
+        return country;
     }
 }

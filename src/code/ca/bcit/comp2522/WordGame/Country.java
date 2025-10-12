@@ -11,7 +11,7 @@ public class Country
     private final String name;
     private final String capitalCityName;
 
-    private final int[]  facts;
+    private final String[]  facts;
 
     /**
      * Full constructor
@@ -22,7 +22,7 @@ public class Country
      */
     public Country(final String name,
                    final String capitalCityName,
-                   final int[] facts)
+                   final String[] facts)
     {
         checkString(name);
         checkString(capitalCityName);
@@ -49,7 +49,7 @@ public class Country
     Check for null list, invalid if null
     Throws new IllegalArgumentException
      */
-    private void checkFacts(final int[] facts)
+    private void checkFacts(final String[] facts)
     {
         if (facts == null)
         {
@@ -78,12 +78,34 @@ public class Country
     }
 
     /**
-     * Get the facts of the country.
-     *
-     * @return the facts of the country.
+     * Print the facts of the country.
      */
-    public int[] getFacts()
+    public void getFacts()
     {
-        return facts;
+        int factNum = 1;
+        for (final String fact : facts)
+        {
+            System.out.println("Fact " + factNum + ": " + fact);
+            factNum++;
+        }
+    }
+
+    /**
+     * Returns string sentence for the country
+     *
+     * @return a string sentence for the country
+     */
+    @Override
+    public String toString()
+    {
+        final StringBuilder sb;
+        sb = new StringBuilder();
+
+        sb.append("Country: ");
+        sb.append(name);
+        sb.append(", Capital: ");
+        sb.append(capitalCityName);
+
+        return sb.toString();
     }
 }
