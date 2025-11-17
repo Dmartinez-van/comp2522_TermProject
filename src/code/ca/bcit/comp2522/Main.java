@@ -3,6 +3,7 @@ package ca.bcit.comp2522;
 import ca.bcit.comp2522.WordGame.WordGame;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Scanner;
 
 /**
@@ -39,7 +40,7 @@ public class Main
      * @param args user input
      * @throws FileNotFoundException if no file is found during reading
      */
-    public static void main(final String[] args) throws FileNotFoundException
+    public static void main(final String[] args) throws IOException
     {
         final Scanner scanner;
         boolean running;
