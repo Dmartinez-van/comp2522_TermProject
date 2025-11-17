@@ -1,5 +1,7 @@
 package ca.bcit.comp2522;
 
+import ca.bcit.comp2522.WordGame.WordGame;
+
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 
@@ -70,7 +72,7 @@ public class Main
                 case "w" ->
                 {
                     System.out.println("Starting Word Game...");
-                    ca.bcit.comp2522.WordGame.Main.main(new String[0]);
+                    WordGame.main(new String[0]);
                 }
 
                 case "q" ->

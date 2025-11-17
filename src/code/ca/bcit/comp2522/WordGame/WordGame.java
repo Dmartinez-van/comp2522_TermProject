@@ -12,7 +12,7 @@ import java.util.Scanner;
  * @author David Martinez
  * @version 1.0
  */
-public class Main
+public class WordGame
 {
     private final static int NUM_OF_FACTS = 3;
 

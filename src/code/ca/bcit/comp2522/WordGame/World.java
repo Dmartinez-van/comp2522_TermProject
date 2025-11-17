@@ -1,6 +1,5 @@
 package ca.bcit.comp2522.WordGame;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -11,18 +10,18 @@ import java.util.Map;
  */
 public class World
 {
-    private final Map<String, Country> countries;
+    private final Map<String, Country> countriesMap;
 
     /**
      * Full constructor
      *
-     * @param countries this world's counties as a Map
+     * @param countriesMap this world's counties as a Map
      */
-    public World(final Map<String, Country> countries)
+    public World(final Map<String, Country> countriesMap)
     {
-        checkMap(countries);
+        checkMap(countriesMap);
 
-        this.countries = countries;
+        this.countriesMap = countriesMap;
     }
 
     /*

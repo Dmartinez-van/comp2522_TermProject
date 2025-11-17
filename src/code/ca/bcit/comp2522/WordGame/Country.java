@@ -8,17 +8,16 @@ package ca.bcit.comp2522.WordGame;
  */
 public class Country
 {
-    private final String name;
-    private final String capitalCityName;
-
-    private final String[]  facts;
+    private final String   countryName;
+    private final String   capitalCityName;
+    private final String[] facts;
 
     /**
      * Full constructor
      *
-     * @param name the name of this country
+     * @param name            the name of this country
      * @param capitalCityName the name of the capital city of this country
-     * @param facts a list of facts about this country
+     * @param facts           a list of facts about this country
      */
     public Country(final String name,
                    final String capitalCityName,
@@ -28,9 +27,9 @@ public class Country
         checkString(capitalCityName);
         checkFacts(facts);
 
-        this.name = name;
+        this.countryName     = name;
         this.capitalCityName = capitalCityName;
-        this.facts = facts;
+        this.facts           = facts;
     }
 
     /*
@@ -62,9 +61,9 @@ public class Country
      *
      * @return the name of the country.
      */
-    public String getName()
+    public String getCountryName()
     {
-        return name;
+        return countryName;
     }
 
     /**
@@ -102,7 +101,7 @@ public class Country
         sb = new StringBuilder();
 
         sb.append("Country: ");
-        sb.append(name);
+        sb.append(countryName);
         sb.append(", Capital: ");
         sb.append(capitalCityName);
 
