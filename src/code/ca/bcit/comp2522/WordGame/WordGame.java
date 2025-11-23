@@ -24,25 +24,31 @@ public class WordGame
     private final static int NONE                    = 0;
     private final static int NUM_QUESTIONS           = 10;
 
-    protected final static int LOWER_BOUND       = 1;
+    protected final static int LOWER_BOUND       = 0;
     protected final static int UPPER_BOUND       = 3;
-    protected final static int TYPE_CAPITAL_CITY = 1;
-    protected final static int TYPE_COUNTRY_NAME = 2;
-    protected final static int TYPE_FACT         = 3;
+    protected final static int TYPE_CAPITAL_CITY = 0;
+    protected final static int TYPE_COUNTRY_NAME = 1;
+    protected final static int TYPE_FACT         = 2;
 
     private final List<Question> questions;
     private final LocalDateTime  datePlayed;
+    private final List<Country>  countries;
+    private final List<Score>    scores;
 
-    private int numOfGamesPlayed;
-    private int numOfFirstAttemptCorrect;
-    private int numOfSecondAttemptCorrect;
-    private int numOfIncorrectAttempt;
+    private final Scanner scanner;
+    private final int     numOfGamesPlayed;
+    private final int     numOfFirstAttemptCorrect;
+    private final int     numOfSecondAttemptCorrect;
+    private final int     numOfIncorrectAttempt;
 
-    public WordGame() throws IOException
+    /**
+     * Constructs a WordGame object and initializes game data.
+     *
+     * @param scanner the scanner for user input
+     * @throws IOException if input files cannot be read
+     */
+    public WordGame(final Scanner scanner) throws IOException
     {
-        System.out.println("GOT TO WORD GAME CONSTRUCTOR");
-        // initialize game data
-        final List<Country> countries;
         final List<Score> scores;
         final Path inputsPath;
 
@@ -52,6 +58,11 @@ public class WordGame
         numOfSecondAttemptCorrect = NONE;
         numOfIncorrectAttempt     = NONE;
         questions                 = new ArrayList<>();
+
+        scores      = new ArrayList<>();
+        this.scores = scores;
+
+        this.scanner = scanner;
 
         inputsPath = Paths.get(
             "src",
@@ -69,15 +80,6 @@ public class WordGame
             System.err.println("No countries were loaded from the input files.");
             return;
         }
-
-        // Your game logic here
-        scores = new ArrayList<>();
-
-        // Generate questions, store in questions list
-        questions.addAll(generateQuestions(countries));
-
-        // Ask questions and collect scores
-        startLoop();
     }
 
     /**
@@ -86,11 +88,8 @@ public class WordGame
     public void startLoop()
     {
         System.out.println("GOT TO START LOOP");
-        final Scanner scanner;
-        scanner = new Scanner(System.in);
 
         boolean playAgain;
-        playAgain = true;
 
         final Score gameScore;
         gameScore = new Score(datePlayed,
@@ -99,9 +98,13 @@ public class WordGame
                               numOfSecondAttemptCorrect,
                               numOfIncorrectAttempt);
 
-        while (playAgain)
+        do
         {
             gameScore.incrementGamesPlayed();
+
+            // Generate questions, store in questions list
+            questions.clear();
+            questions.addAll(generateQuestions(countries));
 
             for (final Question question : questions)
             {
@@ -137,15 +140,26 @@ public class WordGame
             }
 
             System.out.println(gameScore.getCorrectAnswers());
-//            scores.add(currentScore);
+            scores.add(gameScore);
 
             System.out.print("Do you want to play again? (yes/no): ");
 
-            final String response = scanner.nextLine().trim();
-            playAgain = response.equalsIgnoreCase("yes");
-        }
+            String response;
+            while (true)
+            {
+                response = scanner.nextLine().trim().toLowerCase();
 
-        scanner.close();
+                if (response.equals("yes") ||
+                    response.equals("no"))
+                {
+                    break;
+                }
+
+                System.out.print("Invalid input, please enter yes or no: ");
+            }
+
+            playAgain = response.equals("yes");
+        } while (playAgain);
     }
 
     /**

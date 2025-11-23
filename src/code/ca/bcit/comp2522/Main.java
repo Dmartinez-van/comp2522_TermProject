@@ -80,10 +80,13 @@ public class Main
                 case "w" ->
                 {
                     System.out.println("Starting Word Game...");
-//                    WordGame.main(new String[firstIndex]);
                     final WordGame wordGame;
-                    wordGame = new WordGame();
+                    wordGame = new WordGame(scanner);
                     wordGame.startLoop();
+
+                    System.out.println("QUITTING WORD GAME...");
+                    running = false;
+                    break;
                 }
 
                 case "q" ->
