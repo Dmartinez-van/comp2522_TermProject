@@ -59,7 +59,8 @@ public class Main
             displayMenu();
 
             final String selection;
-            selection = scanner.next()
+            selection = scanner.nextLine()
+                               .trim()
                                .substring(firstIndex, secondIndex)
                                .toLowerCase();
 

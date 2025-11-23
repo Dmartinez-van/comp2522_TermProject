@@ -49,7 +49,6 @@ public class WordGame
         final Path inputsPath;
         final LocalDateTime datePlayed;
 
-
         questions    = new ArrayList<>();
         scores       = new ArrayList<>();
         datePlayed   = LocalDateTime.now();
@@ -78,14 +77,43 @@ public class WordGame
             return;
         }
 
+        // Get previous game scores, for later comparison
+        scores.addAll(Score.readScoresFromFile("scores.txt"));
+
+        // Get previous high score before playing
+        final Score previousHighScore;
+        previousHighScore = scores.stream()
+                                  .filter(s -> s.getNumGamesPlayed() > NONE)
+                                  .max(Comparator.comparingDouble(s -> (double) s.getScore() / s.getNumGamesPlayed()))
+                                  .orElse(null);
+
         // Run game
         startLoop();
 
         // append score to file
+        final double averageScore;
+        final double previousAverageScore;
+
+        averageScore         = (double) gameScore.getScore() / gameScore.getNumGamesPlayed();
+        previousAverageScore = previousHighScore == null ? NONE :
+            (double) previousHighScore.getScore() / previousHighScore.getNumGamesPlayed();
+
+        if (averageScore > previousAverageScore)
+        {
+            System.out.println("Congratulations! You achieved a new high score of " +
+                               gameScore.getScore() + " points per game!");
+        }
+        else
+        {
+            assert previousHighScore != null;
+            System.out.println("You did not beat the \"high score\" of " +
+                               previousHighScore +
+                               " points per game from " +
+                               previousHighScore.getDateTimePlayed() +
+                               ".");
+        }
+
         Score.appendScoreToFile(gameScore, "scores.txt");
-
-
-        // Save scores to file
     }
 
     /**
@@ -93,8 +121,6 @@ public class WordGame
      */
     private void startLoop()
     {
-        System.out.println("GOT TO START LOOP");
-
         boolean playAgain;
 
         do
