@@ -69,24 +69,23 @@ public class Main
                 {
                     System.out.println("Starting My Game...");
                     ca.bcit.comp2522.MyGame.Main.main(new String[firstIndex]);
+
+                    running = false;
                 }
 
                 case "n" ->
                 {
                     System.out.println("Starting Number Game...");
                     ca.bcit.comp2522.NumberGame.Main.main(new String[firstIndex]);
+
+                    running = false;
                 }
 
                 case "w" ->
                 {
-                    System.out.println("Starting Word Game...");
-                    final WordGame wordGame;
-                    wordGame = new WordGame(scanner);
-                    wordGame.startLoop();
+                    new WordGame(scanner);
 
-                    System.out.println("QUITTING WORD GAME...");
                     running = false;
-                    break;
                 }
 
                 case "q" ->

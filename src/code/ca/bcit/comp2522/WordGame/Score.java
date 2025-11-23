@@ -415,9 +415,18 @@ final public class Score
         sb.append(numIncorrectTwoAttempts);
         sb.append("\n");
 
-        sb.append("Score: ");
-        sb.append(gameScore);
-        sb.append(" points\n");
+        if (numGamesPlayed > SINGLE)
+        {
+            sb.append("Total Score: ");
+            sb.append(gameScore);
+            sb.append(" points\n");
+        }
+        else
+        {
+            sb.append("Score: ");
+            sb.append(gameScore);
+            sb.append(" points\n");
+        }
 
         return sb.toString();
     }

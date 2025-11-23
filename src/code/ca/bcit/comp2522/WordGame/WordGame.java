@@ -22,7 +22,7 @@ public class WordGame
     private final static int NUM_OF_FACTS            = 3;
     private final static int MIN_NUM_OF_COUNTRY_DATA = 2;
     private final static int NONE                    = 0;
-    private final static int NUM_QUESTIONS           = 10;
+    private final static int NUM_QUESTIONS           = 3;
 
     protected final static int LOWER_BOUND       = 0;
     protected final static int UPPER_BOUND       = 3;
@@ -31,15 +31,11 @@ public class WordGame
     protected final static int TYPE_FACT         = 2;
 
     private final List<Question> questions;
-    private final LocalDateTime  datePlayed;
     private final List<Country>  countries;
+    private final Score          gameScore;
     private final List<Score>    scores;
 
     private final Scanner scanner;
-    private final int     numOfGamesPlayed;
-    private final int     numOfFirstAttemptCorrect;
-    private final int     numOfSecondAttemptCorrect;
-    private final int     numOfIncorrectAttempt;
 
     /**
      * Constructs a WordGame object and initializes game data.
@@ -51,18 +47,19 @@ public class WordGame
     {
         final List<Score> scores;
         final Path inputsPath;
+        final LocalDateTime datePlayed;
 
-        datePlayed                = LocalDateTime.now();
-        numOfGamesPlayed          = NONE;
-        numOfFirstAttemptCorrect  = NONE;
-        numOfSecondAttemptCorrect = NONE;
-        numOfIncorrectAttempt     = NONE;
-        questions                 = new ArrayList<>();
 
-        scores      = new ArrayList<>();
-        this.scores = scores;
-
+        questions    = new ArrayList<>();
+        scores       = new ArrayList<>();
+        datePlayed   = LocalDateTime.now();
+        this.scores  = scores;
         this.scanner = scanner;
+        gameScore    = new Score(datePlayed,
+                                 NONE,
+                                 NONE,
+                                 NONE,
+                                 NONE);
 
         inputsPath = Paths.get(
             "src",
@@ -80,23 +77,25 @@ public class WordGame
             System.err.println("No countries were loaded from the input files.");
             return;
         }
+
+        // Run game
+        startLoop();
+
+        // append score to file
+        Score.appendScoreToFile(gameScore, "scores.txt");
+
+
+        // Save scores to file
     }
 
     /**
      * Starts the main game loop, asking questions and collecting scores.
      */
-    public void startLoop()
+    private void startLoop()
     {
         System.out.println("GOT TO START LOOP");
 
         boolean playAgain;
-
-        final Score gameScore;
-        gameScore = new Score(datePlayed,
-                              numOfGamesPlayed,
-                              numOfFirstAttemptCorrect,
-                              numOfSecondAttemptCorrect,
-                              numOfIncorrectAttempt);
 
         do
         {
