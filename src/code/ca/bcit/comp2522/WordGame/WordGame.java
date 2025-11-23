@@ -107,7 +107,7 @@ public class WordGame
         {
             assert previousHighScore != null;
             System.out.println("You did not beat the \"high score\" of " +
-                               previousHighScore +
+                               previousAverageScore +
                                " points per game from " +
                                previousHighScore.getDateTimePlayed() +
                                ".");
