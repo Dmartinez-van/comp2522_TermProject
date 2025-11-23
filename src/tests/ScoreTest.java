@@ -1,4 +1,4 @@
-import ca.bcit.comp2522.WordGame.Score;
+import ca.bcit.comp2522.wordgame.Score;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

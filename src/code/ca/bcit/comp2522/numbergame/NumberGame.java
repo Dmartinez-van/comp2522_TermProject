@@ -1,4 +1,4 @@
-package ca.bcit.comp2522.NumberGame;
+package ca.bcit.comp2522.numbergame;
 
 /**
  * Runner class for the Number Game
@@ -6,7 +6,7 @@ package ca.bcit.comp2522.NumberGame;
  * @author David Martinez
  * @version 1.0
  */
-public class Main
+public class NumberGame
 {
     /**
      * Runner for main class

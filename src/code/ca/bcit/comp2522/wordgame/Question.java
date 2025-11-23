@@ -1,4 +1,4 @@
-package ca.bcit.comp2522.WordGame;
+package ca.bcit.comp2522.wordgame;
 
 import java.util.random.RandomGenerator;
 

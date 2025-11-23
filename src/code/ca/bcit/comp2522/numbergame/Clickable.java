@@ -1,4 +1,4 @@
-package ca.bcit.comp2522.NumberGame;
+package ca.bcit.comp2522.numbergame;
 
 /**
  * Clickable

@@ -1,6 +1,6 @@
 package ca.bcit.comp2522;
 
-import ca.bcit.comp2522.WordGame.WordGame;
+import ca.bcit.comp2522.wordgame.WordGame;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -69,7 +69,7 @@ public class Main
                 case "m" ->
                 {
                     System.out.println("Starting My Game...");
-                    ca.bcit.comp2522.MyGame.Main.main(new String[firstIndex]);
+                    ca.bcit.comp2522.mygame.Main.main(new String[firstIndex]);
 
                     running = false;
                 }
@@ -77,7 +77,7 @@ public class Main
                 case "n" ->
                 {
                     System.out.println("Starting Number Game...");
-                    ca.bcit.comp2522.NumberGame.Main.main(new String[firstIndex]);
+                    ca.bcit.comp2522.numbergame.Main.main(new String[firstIndex]);
 
                     running = false;
                 }

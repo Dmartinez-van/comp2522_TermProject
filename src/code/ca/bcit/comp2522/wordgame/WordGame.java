@@ -1,4 +1,4 @@
-package ca.bcit.comp2522.WordGame;
+package ca.bcit.comp2522.wordgame;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -9,7 +9,6 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.random.RandomGenerator;
-import java.util.stream.Collectors;
 
 /**
  * Contains main game loop
