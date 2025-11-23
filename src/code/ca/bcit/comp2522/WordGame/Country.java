@@ -1,7 +1,7 @@
 package ca.bcit.comp2522.WordGame;
 
 /**
- * Country
+ * Represents a country with its name, capital city, and interesting facts.
  *
  * @author David Martinez
  * @version 1.0
@@ -13,7 +13,7 @@ public class Country
     private final String[] facts;
 
     /**
-     * Full constructor
+     * Constructs a Country object with the specified name, capital city, and facts.
      *
      * @param name            the name of this country
      * @param capitalCityName the name of the capital city of this country
@@ -77,16 +77,14 @@ public class Country
     }
 
     /**
-     * Print the facts of the country.
+     * Get a fact about the country by its index.
+     *
+     * @param factIndex the index of the fact to retrieve
+     * @return the fact at the specified index
      */
-    public void getFacts()
+    public String getFact(final int factIndex)
     {
-        int factNum = 1;
-        for (final String fact : facts)
-        {
-            System.out.println("Fact " + factNum + ": " + fact);
-            factNum++;
-        }
+        return facts[factIndex];
     }
 
     /**

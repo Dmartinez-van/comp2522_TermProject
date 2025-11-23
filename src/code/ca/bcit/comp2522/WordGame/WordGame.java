@@ -6,9 +6,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Scanner;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.random.RandomGenerator;
+import java.util.stream.Collectors;
 
 /**
  * Contains main game loop
@@ -21,21 +22,36 @@ public class WordGame
     private final static int NUM_OF_FACTS            = 3;
     private final static int MIN_NUM_OF_COUNTRY_DATA = 2;
     private final static int NONE                    = 0;
+    private final static int NUM_QUESTIONS           = 10;
 
-    /**
-     * Runner method for the game loop.
-     * First, load all game inputs into the appropriate data structures
-     * Second, initiate game loop, checking for user input to begin another round or end program
-     *
-     * @param args captures user's input to either continue playing game or end program
-     * @throws FileNotFoundException if input file is not found
-     */
-    public static void main(final String[] args) throws IOException
+    protected final static int LOWER_BOUND       = 1;
+    protected final static int UPPER_BOUND       = 3;
+    protected final static int TYPE_CAPITAL_CITY = 1;
+    protected final static int TYPE_COUNTRY_NAME = 2;
+    protected final static int TYPE_FACT         = 3;
+
+    private final List<Question> questions;
+    private final LocalDateTime  datePlayed;
+
+    private int numOfGamesPlayed;
+    private int numOfFirstAttemptCorrect;
+    private int numOfSecondAttemptCorrect;
+    private int numOfIncorrectAttempt;
+
+    public WordGame() throws IOException
     {
+        System.out.println("GOT TO WORD GAME CONSTRUCTOR");
+        // initialize game data
         final List<Country> countries;
         final List<Score> scores;
-
         final Path inputsPath;
+
+        datePlayed                = LocalDateTime.now();
+        numOfGamesPlayed          = NONE;
+        numOfFirstAttemptCorrect  = NONE;
+        numOfSecondAttemptCorrect = NONE;
+        numOfIncorrectAttempt     = NONE;
+        questions                 = new ArrayList<>();
 
         inputsPath = Paths.get(
             "src",
@@ -47,7 +63,6 @@ public class WordGame
             "inputs");
 
         countries = loadCountriesFromFolder(inputsPath);
-        scores    = new ArrayList<>();
 
         if (countries.isEmpty())
         {
@@ -56,7 +71,115 @@ public class WordGame
         }
 
         // Your game logic here
-        countries.forEach(c -> System.out.println(c.toString()));
+        scores = new ArrayList<>();
+
+        // Generate questions, store in questions list
+        questions.addAll(generateQuestions(countries));
+
+        // Ask questions and collect scores
+        startLoop();
+    }
+
+    /**
+     * Starts the main game loop, asking questions and collecting scores.
+     */
+    public void startLoop()
+    {
+        System.out.println("GOT TO START LOOP");
+        final Scanner scanner;
+        scanner = new Scanner(System.in);
+
+        boolean playAgain;
+        playAgain = true;
+
+        final Score gameScore;
+        gameScore = new Score(datePlayed,
+                              numOfGamesPlayed,
+                              numOfFirstAttemptCorrect,
+                              numOfSecondAttemptCorrect,
+                              numOfIncorrectAttempt);
+
+        while (playAgain)
+        {
+            gameScore.incrementGamesPlayed();
+
+            for (final Question question : questions)
+            {
+                System.out.println("\n" + question.getPrompt());
+                System.out.print("Your answer: ");
+
+                final String userAnswer;
+                userAnswer = scanner.nextLine().trim();
+
+                if (userAnswer.equalsIgnoreCase(question.getAnswer()))
+                {
+                    System.out.println("CORRECT!");
+                    gameScore.incrementFirstCorrectAnswers();
+                }
+                else
+                {
+                    System.out.print("INCORRECT\nTry again: ");
+
+                    final String secondAttempt;
+                    secondAttempt = scanner.nextLine().trim();
+
+                    if (secondAttempt.equalsIgnoreCase(question.getAnswer()))
+                    {
+                        System.out.println("CORRECT!");
+                        gameScore.incrementSecondCorrectAnswers();
+                    }
+                    else
+                    {
+                        System.out.println("INCORRECT! The correct answer was: " + question.getAnswer());
+                        gameScore.incrementIncorrectAnswers();
+                    }
+                }
+            }
+
+            System.out.println(gameScore.getCorrectAnswers());
+//            scores.add(currentScore);
+
+            System.out.print("Do you want to play again? (yes/no): ");
+
+            final String response = scanner.nextLine().trim();
+            playAgain = response.equalsIgnoreCase("yes");
+        }
+
+        scanner.close();
+    }
+
+    /**
+     * Generates a list of questions for the game.
+     *
+     * @param countries the list of countries to generate questions from
+     * @return a list of Question objects
+     */
+    private List<Question> generateQuestions(final List<Country> countries)
+    {
+        final List<Question> questions;
+        final RandomGenerator rng;
+        rng = RandomGenerator.getDefault();
+
+        Collections.shuffle(countries);
+        questions = countries.stream()
+                             .limit(NUM_QUESTIONS)
+                             .map(country -> new Question(rng.nextInt(LOWER_BOUND, UPPER_BOUND), country))
+                             .toList();
+
+        return questions;
+    }
+
+    /**
+     * Runner method for the game loop.
+     * First, load all game inputs into the appropriate data structures
+     * Second, initiate game loop, checking for user input to begin another round or end program
+     *
+     * @param args captures user's input to either continue playing game or end program
+     * @throws FileNotFoundException if input file is not found
+     */
+    public static void main(final String[] args) throws IOException
+    {
+
     }
 
     /**

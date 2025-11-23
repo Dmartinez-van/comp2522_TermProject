@@ -9,25 +9,23 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 /**
- * Score class
+ * Represents a score with number of games played, correct and incorrect answers.
  *
  * @author David Martinez
  * @version 1.0
  */
 final public class Score
 {
-    private final static int CORRECT_FIRST_GUESS_PTS  = 2;
-    private final static int CORRECT_SECOND_GUESS_PTS = 1;
-    private final static int INCORRECT_GUESS_PTS      = 0;
-    private final static int NONE                     = 0;
+    private static final int CORRECT_FIRST_GUESS_PTS  = 2;
+    private static final int CORRECT_SECOND_GUESS_PTS = 1;
+    private static final int NONE                     = 0;
+    private static final int SINGLE                   = 1;
+
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    private final static int MAX_GUESSES = 2;
-
-    private final        LocalDateTime     dateTimePlayed;
+    private final LocalDateTime dateTimePlayed;
 
     private int numGamesPlayed;
     private int numCorrectFirstAttempt;
@@ -35,15 +33,13 @@ final public class Score
     private int numIncorrectTwoAttempts;
 
     /**
-     * Full constructor
+     * Constructs a Score object with the specified parameters.
      *
-     * @param numGamesPlayed          The number of full games played
-     * @param numCorrectFirstAttempt  The number of correct answers on the
-     *                                user's first attempt
-     * @param numCorrectSecondAttempt The number of correct answers on the
-     *                                user's second attempt
-     * @param numIncorrectTwoAttempts The number of incorrect answers after
-     *                                the user attempts twice
+     * @param dateTimePlayed          the date and time the game was played
+     * @param numGamesPlayed          the number of games played
+     * @param numCorrectFirstAttempt  the number of correct answers on the first attempt
+     * @param numCorrectSecondAttempt the number of correct answers on the second attempt
+     * @param numIncorrectTwoAttempts the number of incorrect answers after two attempts
      */
     public Score(final LocalDateTime dateTimePlayed,
                  final int numGamesPlayed,
@@ -101,7 +97,7 @@ final public class Score
         final String line;
 
         path = Paths.get(scoreFile);
-        line = formatScoreLine(score) + System.lineSeparator();
+        line = score.toString() + System.lineSeparator();
 
         try
         {
@@ -114,49 +110,24 @@ final public class Score
         {
             throw new RuntimeException(e);
         }
-
-
     }
 
     /**
-     * Formatter for writing scores to file.
+     * Reads scores from a specified file and returns a list of Score objects.
      *
-     * @param score the score
-     * @return a string for writing
-     */
-    private static String formatScoreLine(final Score score)
-    {
-        final StringBuilder builder;
-
-        builder = new StringBuilder();
-
-        builder.append(score.getDateTimePlayed());
-        builder.append(", ");
-        builder.append(score.getNumGamesPlayed());
-        builder.append(", ");
-        builder.append(score.getNumCorrectFirstAttempt());
-        builder.append(", ");
-        builder.append(score.getNumCorrectSecondAttempt());
-        builder.append(", ");
-        builder.append(score.getNumIncorrectTwoAttempts());
-
-        return builder.toString();
-    }
-
-    /**
-     * Read scores from file
-     *
-     * @param scoreFile the file to read scores from
-     * @return a {@code List<Score>} containing scores from a file
+     * @param scoreFile the input file name
+     * @return a list of Score objects read from the file
      */
     public static List<Score> readScoresFromFile(final String scoreFile)
     {
         final Path path;
         final List<Score> scores;
         final List<String> lines;
+        final List<String> currentBlock;
 
-        path   = Paths.get(scoreFile);
-        scores = new ArrayList<>();
+        path         = Paths.get(scoreFile);
+        scores       = new ArrayList<>();
+        currentBlock = new ArrayList<>();
 
         if (Files.notExists(path))
         {
@@ -172,16 +143,36 @@ final public class Score
             throw new RuntimeException(e);
         }
 
-        for (final String line : lines)
+        for (final String rawLine : lines)
+        {
+            final String line;
+            line = rawLine;
+
+            if (line.trim().isEmpty())
+            {
+                if (!currentBlock.isEmpty())
+                {
+                    final Score score;
+                    score = parseScoreBlock(new ArrayList<>(currentBlock));
+
+                    if (score != null)
+                    {
+                        scores.add(score);
+                    }
+
+                    currentBlock.clear();
+                }
+            }
+            else
+            {
+                currentBlock.add(line);
+            }
+        }
+
+        if (!currentBlock.isEmpty())
         {
             final Score score;
-
-            if (line == null || line.isBlank())
-            {
-                continue;
-            }
-
-            score = parseScoreLine(line.trim());
+            score = parseScoreBlock(currentBlock);
 
             if (score != null)
             {
@@ -192,61 +183,79 @@ final public class Score
         return scores;
     }
 
+
     /**
-     * Parses the score lines from file and creates a score Object.
+     * Parses a block of lines representing a score and returns a Score object.
      *
-     * @param line a line of text containing a score
-     * @return a new Score object
+     * @param blockLines the lines representing a score block
+     * @return a Score object parsed from the block, or null if parsing fails
      */
-    private static Score parseScoreLine(final String line)
+    private static Score parseScoreBlock(final List<String> blockLines)
     {
-        final String[] parts;
-        final int expectedParts;
-        final int dateIndex;
-        final int gamesIndex;
-        final int firstIndex;
-        final int secondIndex;
-        final int incorrectIndex;
-
-        expectedParts = 5;
-
-        dateIndex      = 0;
-        gamesIndex     = 1;
-        firstIndex     = 2;
-        secondIndex    = 3;
-        incorrectIndex = 4;
-
-        parts = line.split(",");
-
-        if (parts.length != expectedParts)
+        if (blockLines.size() < 5)
         {
             return null;
         }
 
-        final LocalDateTime dateTimePlayed;
-        final int numGamesPlayed;
-        final int numCorrectFirstAttempt;
-        final int numCorrectSecondAttempt;
-        final int numIncorrectSecondAttempt;
+        final String dateLine;
+        final String gamesLine;
+        final String firstLine;
+        final String secondLine;
+        final String incorrectLine;
 
-        dateTimePlayed            = LocalDateTime.parse(parts[dateIndex].trim());
-        numGamesPlayed            = Integer.parseInt(parts[gamesIndex].trim());
-        numCorrectFirstAttempt    = Integer.parseInt(parts[firstIndex].trim());
-        numCorrectSecondAttempt   = Integer.parseInt(parts[secondIndex].trim());
-        numIncorrectSecondAttempt = Integer.parseInt(parts[incorrectIndex].trim());
+        dateLine      = blockLines.get(0).trim();
+        gamesLine     = blockLines.get(1).trim();
+        firstLine     = blockLines.get(2).trim();
+        secondLine    = blockLines.get(3).trim();
+        incorrectLine = blockLines.get(4).trim();
+
+        // Parse Date and Time
+        if (!dateLine.startsWith("Date and Time: "))
+        {
+            return null;
+        }
+
+        final String dateText;
+        dateText = dateLine.substring("Date and Time: ".length()).trim();
+
+        final DateTimeFormatter formatter;
+        formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+        final LocalDateTime dateTimePlayed;
+        dateTimePlayed = LocalDateTime.parse(dateText, formatter);
+
+        // Parse Games Played
+        final int numGamesPlayed;
+        numGamesPlayed =
+            Integer.parseInt(gamesLine.substring("Games Played: ".length()).trim());
+
+        // Parse First Attempt count
+        final int numCorrectFirstAttempt;
+        numCorrectFirstAttempt =
+            Integer.parseInt(firstLine.substring("Correct First Attempts: ".length()).trim());
+
+        // Parse Second Attempt count
+        final int numCorrectSecondAttempt;
+        numCorrectSecondAttempt =
+            Integer.parseInt(secondLine.substring("Correct Second Attempts: ".length()).trim());
+
+        // Parse Incorrect Attempts
+        final int numIncorrectTwoAttempts;
+        numIncorrectTwoAttempts =
+            Integer.parseInt(incorrectLine.substring("Incorrect Attempts: ".length()).trim());
 
         return new Score(dateTimePlayed,
                          numGamesPlayed,
                          numCorrectFirstAttempt,
                          numCorrectSecondAttempt,
-                         numIncorrectSecondAttempt);
+                         numIncorrectTwoAttempts);
     }
 
 
     /**
-     * Getter for amount of time played
+     * Getter for date and time played
      *
-     * @return the amount of time played in format []
+     * @return the date and time the game was played
      */
     public LocalDateTime getDateTimePlayed()
     {
@@ -294,45 +303,9 @@ final public class Score
     }
 
     /**
-     * Increase number of games played by 1
-     */
-    public void incrementNumGamesPlayed()
-    {
-        numGamesPlayed++;
-    }
-
-    /**
-     * Increase number of CORRECT FIRST attempt answers by 1
-     */
-    public void incrementNumCorrectFirstAttempt()
-    {
-        numCorrectFirstAttempt++;
-    }
-
-    /**
-     * Increase number of CORRECT second attempt answers by 1
-     */
-    public void incrementNumCorrectSecondAttempt()
-    {
-        numCorrectSecondAttempt++;
-    }
-
-    /**
-     * Increase number of INCORRECT second attempt answers by 1
-     */
-    public void incrementNumIncorrectTwoAttempts()
-    {
-        numIncorrectTwoAttempts++;
-    }
-
-    /**
-     * Getter for the score of the current game.
-     * {@value #CORRECT_FIRST_GUESS_PTS} points for FIRST attempt correct
-     * {@value #CORRECT_SECOND_GUESS_PTS} points for SECOND attempt correct
-     * {@value #INCORRECT_GUESS_PTS} points after {@value #MAX_GUESSES} incorrect
-     * guesses.
+     * Calculates and returns the total score based on correct and incorrect answers.
      *
-     * @return the points total based on correct and incorrect answers.
+     * @return the total score as an integer
      */
     public int getScore()
     {
@@ -351,6 +324,61 @@ final public class Score
 
         return gameScore;
     }
+
+    /**
+     * Formats the score line for display or storage.
+     *
+     * @param score the Score object to format
+     * @return a formatted string representing the score details
+     */
+    private static String formatScoreLine(final Score score)
+    {
+        final int gamesPlayed;
+        gamesPlayed = score.getNumGamesPlayed();
+
+        final int correctFirst;
+        correctFirst = score.getNumCorrectFirstAttempt();
+
+        final int correctSecond;
+        correctSecond = score.getNumCorrectSecondAttempt();
+
+        final int incorrectTwoAttempts;
+        incorrectTwoAttempts = score.getNumIncorrectTwoAttempts();
+
+        final String gameWord;
+        if (gamesPlayed == SINGLE)
+        {
+            gameWord = "word game";
+        }
+        else
+        {
+            gameWord = "word games";
+        }
+
+        final StringBuilder builder;
+        builder = new StringBuilder();
+
+        builder.append("- ");
+        builder.append(gamesPlayed);
+        builder.append(" ");
+        builder.append(gameWord);
+        builder.append(" played\n");
+
+        builder.append("- ");
+        builder.append(correctFirst);
+        builder.append(" correct answers on the first attempt\n");
+
+        builder.append("- ");
+        builder.append(correctSecond);
+        builder.append(" correct answers on the second attempt\n");
+
+        builder.append("- ");
+        builder.append(incorrectTwoAttempts);
+        builder.append(" incorrect answers on two attempts each");
+
+        return builder.toString();
+    }
+
 
     /**
      * Returns instance data as a sentence
@@ -392,5 +420,47 @@ final public class Score
         sb.append(" points\n");
 
         return sb.toString();
+    }
+
+    /**
+     * Returns formatted string of correct answers.
+     *
+     * @return a formatted string of correct answers
+     */
+    public String getCorrectAnswers()
+    {
+        return formatScoreLine(this);
+    }
+
+    /**
+     * Increments the number of games played by 1.
+     */
+    public void incrementGamesPlayed()
+    {
+        numGamesPlayed++;
+    }
+
+    /**
+     * Increments the number of first correct answers by 1.
+     */
+    public void incrementFirstCorrectAnswers()
+    {
+        numCorrectFirstAttempt++;
+    }
+
+    /**
+     * Increments the number of second correct answers by 1.
+     */
+    public void incrementSecondCorrectAnswers()
+    {
+        numCorrectSecondAttempt++;
+    }
+
+    /**
+     * Increments the number of incorrect answers by 1.
+     */
+    public void incrementIncorrectAnswers()
+    {
+        numIncorrectTwoAttempts++;
     }
 }

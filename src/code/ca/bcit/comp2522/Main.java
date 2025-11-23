@@ -50,30 +50,40 @@ public class Main
 
         while (running)
         {
+            final int firstIndex;
+            final int secondIndex;
+
+            firstIndex  = 0;
+            secondIndex = 1;
+
             displayMenu();
+
             final String selection;
             selection = scanner.next()
-                            .substring(0, 1)
-                            .toLowerCase();
+                               .substring(firstIndex, secondIndex)
+                               .toLowerCase();
 
             switch (selection)
             {
                 case "m" ->
                 {
                     System.out.println("Starting My Game...");
-                    ca.bcit.comp2522.MyGame.Main.main(new String[0]);
+                    ca.bcit.comp2522.MyGame.Main.main(new String[firstIndex]);
                 }
 
                 case "n" ->
                 {
                     System.out.println("Starting Number Game...");
-                    ca.bcit.comp2522.NumberGame.Main.main(new String[0]);
+                    ca.bcit.comp2522.NumberGame.Main.main(new String[firstIndex]);
                 }
 
                 case "w" ->
                 {
                     System.out.println("Starting Word Game...");
-                    WordGame.main(new String[0]);
+//                    WordGame.main(new String[firstIndex]);
+                    final WordGame wordGame;
+                    wordGame = new WordGame();
+                    wordGame.startLoop();
                 }
 
                 case "q" ->
@@ -82,8 +92,7 @@ public class Main
                     running = false;
                 }
 
-                default ->
-                    System.out.println(BOLD + "Invalid selection. Please choose M, N, W, or Q." + RESET);
+                default -> System.out.println(BOLD + "Invalid selection. Please choose M, N, W, or Q." + RESET);
 
             }
         }
