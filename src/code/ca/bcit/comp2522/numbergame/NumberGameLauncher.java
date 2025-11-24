@@ -16,7 +16,7 @@ public class NumberGameLauncher
     /**
      * Private constructor to prevent instantiation.
      */
-    private NumberGameLauncher(){}
+    private NumberGameLauncher() {}
 
     /**
      * Launcher method for the Number Game JavaFX application.

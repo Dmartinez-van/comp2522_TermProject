@@ -2,6 +2,7 @@ package ca.bcit.comp2522.numbergame;
 
 import javafx.application.Application;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Region;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -25,6 +26,8 @@ public class NumberGameApp extends Application
 {
     private static final int EMPTY = 0;
 
+    private Stage primaryStage;
+
     private Button[] cells;
     private Label    statusLabel;
     private Label    nextNumberLabel;
@@ -32,69 +35,114 @@ public class NumberGameApp extends Application
     private NumberGameFX game;
 
     /**
-     * Launches the JavaFX application.
-     */
-    public static void launchGame()
-    {
-        Application.launch(NumberGameApp.class);  // proper JavaFX startup
-    }
-
-    /**
      * Starts the JavaFX application.
      *
      * @param primaryStage the primary stage for this application
-     * @throws Exception if an error occurs during startup
      */
     @Override
-    public void start(final Stage primaryStage) throws Exception
+    public void start(final Stage primaryStage)
+    {
+        validateStage(primaryStage);
+
+        this.primaryStage = primaryStage;
+
+        createGameLabels();
+
+        final GridPane grid;
+        final VBox root;
+
+        grid = createGrid();
+        root = createLayout(grid);
+
+        initializeGameLogic();
+
+        final Scene scene;
+        scene = new Scene(root);
+        primaryStage.setScene(scene);
+        primaryStage.setTitle("2D Number Challenge");
+        primaryStage.show();
+        primaryStage.requestFocus();
+
+        game.startNewGame();
+    }
+
+    /*
+     * Validates the primary stage.
+     * @param stage the primary stage to validate
+     * @throws IllegalArgumentException if the stage is null
+     */
+    private void validateStage(final Stage stage)
+    {
+        if (stage == null)
+        {
+            throw new IllegalArgumentException("Primary stage cannot be null.");
+        }
+    }
+
+    /**
+     * Creates the game labels for status and next number.
+     */
+    private void createGameLabels()
+    {
+        statusLabel     = new Label("Click \"Try Again\" to start a new game.");
+        nextNumberLabel = new Label("Next number: -");
+    }
+
+    /**
+     * Creates the grid of buttons for the game.
+     *
+     * @return the constructed GridPane
+     */
+    private GridPane createGrid()
     {
         final int cellWidthPx;
         final int cellHeightPx;
         final int cellGapPx;
-        final int buttonPaddingPx;
 
-        cellWidthPx     = 80;
-        cellHeightPx    = 40;
-        cellGapPx       = 5;
-        buttonPaddingPx = 10;
+        cellWidthPx  = 80;
+        cellHeightPx = 40;
+        cellGapPx    = 5;
 
-        statusLabel     = new Label("Click \"Try Again\" to start a new game.");
-        nextNumberLabel = new Label("Next number: -");
-
-        GridPane grid = new GridPane();
+        final GridPane grid;
+        grid = new GridPane();
         grid.setHgap(cellGapPx);
         grid.setVgap(cellGapPx);
 
         cells = new Button[AbstractNumberGame.CELL_COUNT];
 
-        for (int i = EMPTY; i < AbstractNumberGame.CELL_COUNT; i++)
+        for (int i = 0; i < AbstractNumberGame.CELL_COUNT; i++)
         {
-            final int index = i;
-            Button btn = new Button("[]");
+            final Button btn;
+            btn = new Button("[]");
             btn.setPrefSize(cellWidthPx, cellHeightPx);
 
-            btn.setOnAction(e -> game.handleCellClick(index));
+            final int finalI = i;
+            btn.setOnAction(e -> game.handleCellClick(finalI));
 
             cells[i] = btn;
             grid.add(btn, i % AbstractNumberGame.COLS, i / AbstractNumberGame.COLS);
         }
 
-        final Button tryAgainBtn;
+        return grid;
+    }
 
+    /**
+     * Creates the main layout of the application.
+     *
+     * @param grid the grid pane containing the game cells
+     * @return the constructed VBox layout
+     */
+    private VBox createLayout(final GridPane grid)
+    {
+        final int buttonPaddingPx;
+        buttonPaddingPx = 10;
+
+        final Button tryAgainBtn;
         tryAgainBtn = new Button("Try Again");
         tryAgainBtn.setOnAction(e -> game.startNewGame());
 
-        Button quitBtn = new Button("Quit");
-        quitBtn.setOnAction(e ->
-                            {
-                                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                                alert.setTitle("Game Over");
-                                alert.setHeaderText(null);
-                                alert.setContentText(game.getStatsSummary());
-                                alert.showAndWait();
-
-                                primaryStage.close();
-                            });
+        final Button quitBtn;
+        quitBtn = createQuitButton();
 
         final HBox controls;
         controls = new HBox(buttonPaddingPx, tryAgainBtn, quitBtn);
@@ -103,19 +151,42 @@ public class NumberGameApp extends Application
         root = new VBox(buttonPaddingPx, statusLabel, nextNumberLabel, grid, controls);
         root.setPadding(new Insets(buttonPaddingPx));
 
+        return root;
+    }
+
+    /**
+     * Creates the Quit button with its action handler.
+     *
+     * @return the constructed Quit button
+     */
+    private Button createQuitButton()
+    {
+        final Button quitBtn;
+        quitBtn = new Button("Quit");
+        quitBtn.setOnAction(e ->
+                            {
+                                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                                alert.setTitle("Game Over");
+                                alert.setHeaderText(null);
+                                alert.setContentText(game.getStatsSummary());
+                                alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
+                                alert.showAndWait();
+
+                                primaryStage.close();
+                            });
+
+        return quitBtn;
+    }
+
+    /**
+     * Initializes the game logic and sets up UI callbacks.
+     */
+    private void initializeGameLogic()
+    {
         game = new NumberGameFX();
         game.setUi(this::updateGrid,
                    this::updateNumber,
                    this::handleGameOver);
-
-        final Scene scene;
-        scene = new Scene(root);
-        primaryStage.setScene(scene);
-        primaryStage.setTitle("2D Number Challenge");
-        primaryStage.show();
-
-        // optional: auto start first game
-        game.startNewGame();
     }
 
     /**
@@ -168,18 +239,29 @@ public class NumberGameApp extends Application
         alert.setTitle("Game Over");
         alert.setHeaderText(null);
         alert.setContentText(message);
+        alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
 
         final ButtonType tryAgain;
         tryAgain = new ButtonType("Try Again", ButtonBar.ButtonData.OK_DONE);
-        ButtonType quit = new ButtonType("Quit", ButtonBar.ButtonData.CANCEL_CLOSE);
+
+        final ButtonType quit;
+        quit = new ButtonType("Quit", ButtonBar.ButtonData.CANCEL_CLOSE);
         alert.getButtonTypes().setAll(tryAgain, quit);
 
         final Optional<ButtonType> result;
         result = alert.showAndWait();
 
-        if (result.isPresent() && result.get() == tryAgain)
+        if (result.isPresent())
         {
-            game.startNewGame();
+            if (result.get() == tryAgain)
+            {
+                game.startNewGame();
+            }
+            else if (result.get() == quit)
+            {
+                System.out.println("\nGame stats: " + game.getStatsSummary() + "\n");
+                primaryStage.close();
+            }
         }
     }
 
@@ -211,11 +293,5 @@ public class NumberGameApp extends Application
         }
 
         return messageBuilder.toString();
-    }
-
-
-    public static void main(String[] args)
-    {
-        launch(args);
     }
 }

@@ -19,8 +19,8 @@ public abstract class AbstractNumberGame implements GridGame
     protected static final int COLS       = 5;
     protected static final int CELL_COUNT = ROWS * COLS;
 
-    protected final int[] gridValues;       // 0 means empty
-    protected       int   currentNumber;            // next number to place
+    protected final int[] gridValues;
+    protected       int   currentNumber;
     protected       int   successfulPlacements;
 
     protected int gamesPlayed;
@@ -121,7 +121,10 @@ public abstract class AbstractNumberGame implements GridGame
             }
         }
 
-        return prevValue <= value && value <= nextValue;
+        final boolean validPlacement;
+        validPlacement = prevValue <= value && value <= nextValue;
+
+        return validPlacement;
     }
 
     /**
@@ -132,6 +135,7 @@ public abstract class AbstractNumberGame implements GridGame
     protected void recordGameEnd(final boolean won)
     {
         gamesPlayed++;
+
         if (won)
         {
             gamesWon++;
@@ -140,6 +144,7 @@ public abstract class AbstractNumberGame implements GridGame
         {
             gamesLost++;
         }
+
         totalPlacements += successfulPlacements;
     }
 
@@ -164,7 +169,7 @@ public abstract class AbstractNumberGame implements GridGame
         final StringBuilder sb;
         sb = new StringBuilder();
 
-        sb.append("You won ");
+        sb.append("\nYou won ");
         sb.append(gamesWon);
         sb.append(" out of ");
         sb.append(gamesPlayed);
@@ -176,11 +181,10 @@ public abstract class AbstractNumberGame implements GridGame
         sb.append(totalPlacements);
         sb.append(" successful placements, an average of ");
         sb.append(String.format("%.2f", average));
-        sb.append(" per game.");
+        sb.append(" per game.\n");
 
         return sb.toString();
     }
-
 
     // Hooks that the concrete GUI class must implement
     protected abstract void onGridUpdated(final int[] gridValues);

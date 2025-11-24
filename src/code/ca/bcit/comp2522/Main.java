@@ -79,17 +79,12 @@ public class Main
 
                 case "n" ->
                 {
-                    System.out.println("Starting Number Game...");
                     NumberGameLauncher.start();
-
-                    // running = false;
                 }
 
                 case "w" ->
                 {
                     new WordGame(scanner);
-
-                    // running = false;
                 }
 
                 case "q" ->

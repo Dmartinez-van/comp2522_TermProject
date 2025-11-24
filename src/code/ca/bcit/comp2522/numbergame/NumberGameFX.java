@@ -12,7 +12,6 @@ import java.util.function.IntConsumer;
  */
 public class NumberGameFX extends AbstractNumberGame
 {
-    // function-style hooks so GUI can attach lambdas
     private Consumer<int[]>              gridUpdateConsumer;
     private IntConsumer                  numberUpdateConsumer;
     private BiConsumer<Boolean, Integer> gameOverConsumer;
@@ -24,9 +23,9 @@ public class NumberGameFX extends AbstractNumberGame
      * @param numberUpdateConsumer consumer for number updates
      * @param gameOverConsumer     consumer for game over events
      */
-    public void setUi(Consumer<int[]> gridUpdateConsumer,
-                      IntConsumer numberUpdateConsumer,
-                      BiConsumer<Boolean, Integer> gameOverConsumer)
+    public void setUi(final Consumer<int[]> gridUpdateConsumer,
+                      final IntConsumer numberUpdateConsumer,
+                      final BiConsumer<Boolean, Integer> gameOverConsumer)
     {
         this.gridUpdateConsumer   = gridUpdateConsumer;
         this.numberUpdateConsumer = numberUpdateConsumer;
@@ -39,7 +38,7 @@ public class NumberGameFX extends AbstractNumberGame
      * @param index the index of the clicked cell
      */
     @Override
-    public void handleCellClick(int index)
+    public void handleCellClick(final int index)
     {
         if (!isValidPlacement(index, currentNumber))
         {
