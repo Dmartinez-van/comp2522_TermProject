@@ -102,6 +102,12 @@ public class Country
         sb.append(countryName);
         sb.append(", Capital: ");
         sb.append(capitalCityName);
+        sb.append(", Facts: ");
+        for (final String fact : facts)
+        {
+            sb.append(fact);
+            sb.append("; ");
+        }
 
         return sb.toString();
     }

@@ -47,3 +47,24 @@ Correct Second Attempts: 0
 Incorrect Attempts: 3
 Score: 0 points
 
+Date and Time: 2025-11-23 21:08:37
+Games Played: 1
+Correct First Attempts: 0
+Correct Second Attempts: 0
+Incorrect Attempts: 3
+Score: 0 points
+
+Date and Time: 2025-11-23 21:17:50
+Games Played: 1
+Correct First Attempts: 0
+Correct Second Attempts: 0
+Incorrect Attempts: 0
+Score: 0 points
+
+Date and Time: 2025-11-23 21:19:07
+Games Played: 2
+Correct First Attempts: 1
+Correct Second Attempts: 0
+Incorrect Attempts: 5
+Total Score: 2 points
+

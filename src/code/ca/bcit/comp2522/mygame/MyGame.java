@@ -6,9 +6,10 @@ package ca.bcit.comp2522.mygame;
  * @author David Martinez
  * @version 1.0
  */
-public class Main
+public class MyGame
 {
-    public static void main(final String[] args)
+
+    public static void runGame()
     {
         System.out.println("Playing 'My Game'!");
     }

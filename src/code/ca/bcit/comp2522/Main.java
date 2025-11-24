@@ -1,13 +1,12 @@
 package ca.bcit.comp2522;
 
-import ca.bcit.comp2522.numbergame.NumberGameApp;
+import ca.bcit.comp2522.mygame.MyGame;
 import ca.bcit.comp2522.numbergame.NumberGameLauncher;
 import ca.bcit.comp2522.wordgame.WordGame;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Scanner;
-import javafx.application.Application;
 
 /**
  * Starts game loop for selecting a game type
@@ -72,7 +71,7 @@ public class Main
                 case "m" ->
                 {
                     System.out.println("Starting My Game...");
-                    ca.bcit.comp2522.mygame.Main.main(new String[firstIndex]);
+                    MyGame.runGame();
 
                     running = false;
                 }

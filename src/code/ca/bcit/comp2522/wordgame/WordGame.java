@@ -9,6 +9,7 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.random.RandomGenerator;
+import java.util.stream.Collectors;
 
 /**
  * Contains main game loop
@@ -31,6 +32,7 @@ public class WordGame
 
     private final List<Question> questions;
     private final List<Country>  countries;
+    private final World          world;
     private final Score          gameScore;
     private final List<Score>    scores;
 
@@ -69,6 +71,12 @@ public class WordGame
             "inputs");
 
         countries = loadCountriesFromFolder(inputsPath);
+
+        final Map<String, Country> countryMap;
+        countryMap = countries.stream()
+                              .collect(Collectors.toMap(Country::getCountryName, c -> c));
+
+        this.world = new World(countryMap);
 
         if (countries.isEmpty())
         {
@@ -128,7 +136,7 @@ public class WordGame
 
             // Generate questions, store in questions list
             questions.clear();
-            questions.addAll(generateQuestions(countries));
+            questions.addAll(generateQuestions());
 
             for (final Question question : questions)
             {
@@ -187,37 +195,28 @@ public class WordGame
     }
 
     /**
-     * Generates a list of questions for the game.
+     * Generates a list of random questions for the game.
      *
-     * @param countries the list of countries to generate questions from
      * @return a list of Question objects
      */
-    private List<Question> generateQuestions(final List<Country> countries)
+    private List<Question> generateQuestions()
     {
         final List<Question> questions;
+        final List<Country> randomCountries;
         final RandomGenerator rng;
         rng = RandomGenerator.getDefault();
 
-        Collections.shuffle(countries);
-        questions = countries.stream()
-                             .limit(NUM_QUESTIONS)
-                             .map(country -> new Question(rng.nextInt(LOWER_BOUND, UPPER_BOUND), country))
-                             .toList();
+        randomCountries = new ArrayList<>(world.getAllCountries());
+        Collections.shuffle(randomCountries, rng);
+
+        questions = randomCountries.stream()
+                                   .limit(NUM_QUESTIONS)
+                                   .map(country -> new Question(
+                                       rng.nextInt(LOWER_BOUND, UPPER_BOUND),
+                                       country))
+                                   .toList();
 
         return questions;
-    }
-
-    /**
-     * Runner method for the game loop.
-     * First, load all game inputs into the appropriate data structures
-     * Second, initiate game loop, checking for user input to begin another round or end program
-     *
-     * @param args captures user's input to either continue playing game or end program
-     * @throws FileNotFoundException if input file is not found
-     */
-    public static void main(final String[] args) throws IOException
-    {
-
     }
 
     /**
