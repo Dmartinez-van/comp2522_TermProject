@@ -9,6 +9,8 @@ import javafx.scene.layout.VBox;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 
+import javax.swing.*;
+
 /**
  * GameView class for Auto Clicker Battler.
  *
@@ -23,6 +25,8 @@ public class GameView
     private static final int    ROOT_GAP_PADDING_PX                  = 15;
     private static final int    ROOT_MARGIN_PX                       = 20;
     private static final int    UPGRADE_AREA_GAP_PADDING_PX          = 10;
+    private static final int    STARTING_GOLD_LABEL                  = 0;
+    private static final int    STARTING_ENEMY_DEFEATED_LABEL        = 0;
 
     private ProgressBar enemyHealthBar;
     private Button      attackButton;
@@ -31,6 +35,7 @@ public class GameView
     private Button      levelOneHealthUpgradeButton;
     private Label       damageLabel;
     private Label       autoDamageLabel;
+    private Label       statsLabel;
 
     /**
      * Creates and returns the main scene for the game.
@@ -53,6 +58,14 @@ public class GameView
         damageLabel     = new Label("Damage per Click: 1.0 (Magic num)");
         autoDamageLabel = new Label("Auto damage per second: 0.0 (Magic num)");
 
+        final StringBuilder statsLabelString;
+        statsLabelString = new StringBuilder();
+        statsLabelString.append("Gold: ");
+        statsLabelString.append(STARTING_GOLD_LABEL);
+        statsLabelString.append(" | Enemies Defeated: ");
+        statsLabelString.append(STARTING_ENEMY_DEFEATED_LABEL);
+        statsLabel = new Label(statsLabelString.toString());
+
         levelOneAutoUpgradeButton   = new Button("Buy Level 1 Auto Click Upgrade");
         levelTwoAutoUpgradeButton   = new Button("Buy Level 2 Auto Click Upgrade");
         levelOneHealthUpgradeButton = new Button("Buy Level 1 Health Upgrade");
@@ -67,6 +80,7 @@ public class GameView
                         enemyHealthBar,
                         damageLabel,
                         autoDamageLabel,
+                        statsLabel,
                         attackButton,
                         upgradeRow);
         root.setPadding(new Insets(ROOT_MARGIN_PX));
@@ -144,6 +158,16 @@ public class GameView
     public Label getAutoDamageLabel()
     {
         return autoDamageLabel;
+    }
+
+    /**
+     * Gets the stats label.
+     *
+     * @return the stats label
+     */
+    public Label getStatsLabel()
+    {
+        return statsLabel;
     }
 }
 

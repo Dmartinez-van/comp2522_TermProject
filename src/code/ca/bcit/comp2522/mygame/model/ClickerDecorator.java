@@ -6,7 +6,7 @@ package ca.bcit.comp2522.mygame.model;
  * @author David Martinez
  * @version 1.0
  */
-public class ClickerDecorator implements Clicker
+public abstract class ClickerDecorator implements Clicker
 {
     protected final Clicker innerClicker;
 
@@ -17,7 +17,22 @@ public class ClickerDecorator implements Clicker
      */
     protected ClickerDecorator(final Clicker innerClicker)
     {
+        validateInnerClicker(innerClicker);
         this.innerClicker = innerClicker;
+    }
+
+    /**
+     * Validates the inner Clicker.
+     *
+     * @param innerClicker the Clicker to validate
+     * @throws IllegalArgumentException if innerClicker is null
+     */
+    private void validateInnerClicker(final Clicker innerClicker)
+    {
+        if (innerClicker == null)
+        {
+            throw new IllegalArgumentException("Inner Clicker cannot be null.");
+        }
     }
 
     /**

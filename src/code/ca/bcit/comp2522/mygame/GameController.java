@@ -17,9 +17,13 @@ public class GameController
     private static final double   NO_DAMAGE                        = 0.0;
     private static final double   MIN_HEALTH                       = 0.0;
     private static final double   NEW_ENEMY_HEALTH_INCREASE_AMOUNT = 20.0;
+    private static final int      ONE_ENEMY_DEFEATED               = 1;
+    private static final int      GOLD_10_PIECES                   = 10;
+    private static final int      UPGRADE_COST_SUBTRACTION         = -1;
+    private static final int      MIN_UPGRADE_COST                 = 1;
     private final        GameView view;
+    private final        Player   player;
 
-    private Clicker        clicker;
     private AnimationTimer gameLoop;
 
     private double enemyHealth;
@@ -34,9 +38,12 @@ public class GameController
      */
     public GameController(final GameView view)
     {
+        validateView(view);
         this.view = view;
 
-        initializePlayer();
+        player = new Player();
+        player.setStat("upgradePoints", 5); // give some starting upgrade points for testing
+
         initializeEnemy();
         initializeHandlers();
         updateStatsLabels();
@@ -44,12 +51,19 @@ public class GameController
     }
 
     /**
-     * Initialize the player clicker.
+     * Validate the provided GameView.
+     *
+     * @param view the GameView to validate
+     * @throws IllegalArgumentException if view is null
      */
-    private void initializePlayer()
+    private void validateView(final GameView view)
     {
-        clicker = new StarterClicker();
+        if (view == null)
+        {
+            throw new IllegalArgumentException("GameView cannot be null.");
+        }
     }
+
 
     /**
      * Initialize the enemy stats.
@@ -66,11 +80,17 @@ public class GameController
      */
     private void initializeHandlers()
     {
-        view.getAttackButton().setOnAction(event -> handleAttackClick());
+        view.getAttackButton().
+            setOnAction(event -> handleAttackClick());
 
-        view.getLevelOneAutoUpgradeButton().setOnAction(event -> applyLevelOneAutoUpgrade());
-        view.getLevelTwoAutoUpgradeButton().setOnAction(event -> applyLevelTwoAutoUpgrade());
-        view.getLevelOneHealthUpgradeButton().setOnAction(event -> applyLevelOneHealthUpgrade());
+        view.getLevelOneAutoUpgradeButton()
+            .setOnAction(event -> applyLevelOneAutoUpgrade());
+
+        view.getLevelTwoAutoUpgradeButton()
+            .setOnAction(event -> applyLevelTwoAutoUpgrade());
+
+        view.getLevelOneHealthUpgradeButton()
+            .setOnAction(event -> applyLevelOneHealthUpgrade());
     }
 
     /**
@@ -80,10 +100,14 @@ public class GameController
     {
         gameLoop = new AnimationTimer()
         {
+
+            private static final double CONVERSION_FACTOR_FROM_NANO_TO_SECONDS = 1_000_000_000.0;
+            private static final int    NO_NANOSECONDS                         = 0;
+
             @Override
             public void handle(final long now)
             {
-                if (lastTimeNanos == 0)
+                if (lastTimeNanos == NO_NANOSECONDS)
                 {
                     lastTimeNanos = now;
                     return;
@@ -91,7 +115,7 @@ public class GameController
 
                 final double deltaSeconds;
 
-                deltaSeconds  = (now - lastTimeNanos) / 1_000_000_000.0;
+                deltaSeconds  = (now - lastTimeNanos) / CONVERSION_FACTOR_FROM_NANO_TO_SECONDS;
                 lastTimeNanos = now;
 
                 tick(deltaSeconds);
@@ -108,6 +132,9 @@ public class GameController
      */
     private void tick(final double deltaSeconds)
     {
+        final Clicker clicker;
+
+        clicker = player.getClicker();
         clicker.tick(deltaSeconds);
 
         final double autoDamage;
@@ -127,8 +154,11 @@ public class GameController
      */
     private void handleAttackClick()
     {
+        final Clicker clicker;
         final double damage;
-        damage = clicker.getDamagePerClick();
+
+        clicker = player.getClicker();
+        damage  = clicker.getDamagePerClick();
 
         dealDamage(damage);
         updateEnemyBar();
@@ -163,6 +193,9 @@ public class GameController
         // simple reset for now, later you can scale difficulty
         enemyMaxHealth = enemyMaxHealth + NEW_ENEMY_HEALTH_INCREASE_AMOUNT;
         enemyHealth    = enemyMaxHealth;
+
+        player.addToStat("enemiesDefeated", ONE_ENEMY_DEFEATED);
+        player.addToStat("gold", GOLD_10_PIECES);
     }
 
     /**
@@ -182,11 +215,29 @@ public class GameController
      */
     private void updateStatsLabels()
     {
+        final Clicker clicker;
+        final int gold;
+        final int enemiesDefeated;
+        final int upgradePoints;
+
+        clicker         = player.getClicker();
+        gold            = player.getStat("gold");
+        enemiesDefeated = player.getStat("enemiesDefeated");
+        upgradePoints   = player.getStat("upgradePoints");
+
         view.getDamageLabel()
             .setText("Damage per click: " + clicker.getDamagePerClick());
 
         view.getAutoDamageLabel()
             .setText("Auto damage per second: " + clicker.getAutoDamagePerSecond());
+
+        // Update overall stats - could be extended if more stats are added later
+        final StringBuilder statsText;
+        statsText = new StringBuilder();
+        statsText.append("Gold: ").append(gold)
+                 .append("  Enemies: ").append(enemiesDefeated)
+                 .append("  Upgrade Points: ").append(upgradePoints);
+        view.getStatsLabel().setText(statsText.toString());
     }
 
     /**
@@ -194,8 +245,8 @@ public class GameController
      */
     private void applyLevelOneAutoUpgrade()
     {
-        clicker = new L1AutoClickUpgrade(clicker);
-        updateStatsLabels();
+        applyUpgrade("Level 1 Auto",
+                     baseClicker -> new L1AutoClickUpgrade(baseClicker));
     }
 
     /**
@@ -203,8 +254,8 @@ public class GameController
      */
     private void applyLevelTwoAutoUpgrade()
     {
-        clicker = new L2AutoClickUpgrade(clicker);
-        updateStatsLabels();
+        applyUpgrade("Level 2 Auto",
+                     baseClicker -> new L2AutoClickUpgrade(baseClicker));
     }
 
     /**
@@ -212,7 +263,38 @@ public class GameController
      */
     private void applyLevelOneHealthUpgrade()
     {
-        clicker = new L1HealthUpgrade(clicker);
+        applyUpgrade("Level 1 Health",
+                     baseClicker -> new L1HealthUpgrade(baseClicker));
+    }
+
+    /**
+     * Apply a generic upgrade to the clicker.
+     *
+     * @param upgradeName    the name of the upgrade
+     * @param upgradeFactory the factory function to create the upgraded clicker
+     */
+    private void applyUpgrade(final String upgradeName,
+                              final ClickerUpgrade upgradeFactory)
+    {
+        final int currentUpgradePoints;
+
+        currentUpgradePoints = player.getStat("upgradePoints");
+
+        if (currentUpgradePoints < MIN_UPGRADE_COST)
+        {
+            System.out.println("Not enough upgrade points for " + upgradeName + ".");
+            return;
+        }
+
+        final Clicker baseClicker;
+        final Clicker upgradedClicker;
+
+        baseClicker     = player.getClicker();
+        upgradedClicker = upgradeFactory.apply(baseClicker);
+
+        player.setClicker(upgradedClicker);
+        player.addToStat("upgradePoints", UPGRADE_COST_SUBTRACTION);
+
         updateStatsLabels();
     }
 }

@@ -47,6 +47,6 @@ public class L1AutoClickUpgrade extends ClickerDecorator
         final double extraDamage;
 
         extraDamage = ADDED_AUTO_DAMAGE_PER_SECOND * deltaSeconds;
-        System.out.println("L1AutoClickUpgrade adds " + extraDamage + " auto damage.");
+//        System.out.println("L1AutoClickUpgrade adds " + extraDamage + " auto damage.");
     }
 }
