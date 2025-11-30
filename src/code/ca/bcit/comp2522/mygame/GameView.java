@@ -9,8 +9,6 @@ import javafx.scene.layout.VBox;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 
-import javax.swing.*;
-
 /**
  * GameView class for Auto Clicker Battler.
  *
@@ -23,19 +21,24 @@ public class GameView
     private static final double ENEMY_HEALTH_BAR_STARTING_NORMALIZED = 1.0;
     private static final int    ATTACK_BTN_WIDTH_PX                  = 150;
     private static final int    ROOT_GAP_PADDING_PX                  = 15;
-    private static final int    ROOT_MARGIN_PX                       = 20;
-    private static final int    UPGRADE_AREA_GAP_PADDING_PX          = 10;
-    private static final int    STARTING_GOLD_LABEL                  = 0;
-    private static final int    STARTING_ENEMY_DEFEATED_LABEL        = 0;
+    private static final int ROOT_MARGIN_PX                = 20;
+    private static final int HBOX_GAP_PADDING_PX           = 10;
+    private static final int STARTING_ENEMY_DEFEATED_LABEL = 0;
+    private static final int    STARTING_UPGRADE_POINTS_LABEL        = 0;
 
     private ProgressBar enemyHealthBar;
-    private Button      attackButton;
-    private Button      levelOneAutoUpgradeButton;
-    private Button      levelTwoAutoUpgradeButton;
-    private Button      levelOneHealthUpgradeButton;
-    private Label       damageLabel;
-    private Label       autoDamageLabel;
-    private Label       statsLabel;
+
+    private Button attackButton;
+    private Button levelOneAutoUpgradeButton;
+    private Button levelTwoAutoUpgradeButton;
+    private Button levelOneHealthUpgradeButton;
+    private Button levelOneClickUpgradeButton;
+
+    private Label damageLabel;
+    private Label autoDamageLabel;
+    private Label statsLabel;
+    private Label enemyHealthLabel;
+
 
     /**
      * Creates and returns the main scene for the game.
@@ -46,11 +49,21 @@ public class GameView
     {
         final VBox root;
         final HBox upgradeRow;
+        final HBox healthRow;
         final Scene scene;
 
         enemyHealthBar = new ProgressBar();
         enemyHealthBar.setPrefWidth(ENEMY_HEALTH_BAR_WIDTH_PX);
         enemyHealthBar.setProgress(ENEMY_HEALTH_BAR_STARTING_NORMALIZED);
+
+        // Placeholder label for enemy health
+        enemyHealthLabel = new Label("HP: -- / --");
+
+        healthRow = new HBox(HBOX_GAP_PADDING_PX,
+                             new Label("Enemy Health: "),
+                             enemyHealthBar,
+                             enemyHealthLabel);
+        healthRow.setAlignment(Pos.CENTER);
 
         attackButton = new Button("Attack");
         attackButton.setPrefWidth(ATTACK_BTN_WIDTH_PX);
@@ -60,8 +73,8 @@ public class GameView
 
         final StringBuilder statsLabelString;
         statsLabelString = new StringBuilder();
-        statsLabelString.append("Gold: ");
-        statsLabelString.append(STARTING_GOLD_LABEL);
+        statsLabelString.append("Upgrade Points: ");
+        statsLabelString.append(STARTING_UPGRADE_POINTS_LABEL);
         statsLabelString.append(" | Enemies Defeated: ");
         statsLabelString.append(STARTING_ENEMY_DEFEATED_LABEL);
         statsLabel = new Label(statsLabelString.toString());
@@ -69,15 +82,17 @@ public class GameView
         levelOneAutoUpgradeButton   = new Button("Buy Level 1 Auto Click Upgrade");
         levelTwoAutoUpgradeButton   = new Button("Buy Level 2 Auto Click Upgrade");
         levelOneHealthUpgradeButton = new Button("Buy Level 1 Health Upgrade");
+        levelOneClickUpgradeButton  = new Button("Buy Level 1 Click Upgrade");
 
-        upgradeRow = new HBox(UPGRADE_AREA_GAP_PADDING_PX,
+        upgradeRow = new HBox(HBOX_GAP_PADDING_PX,
                               levelOneAutoUpgradeButton,
                               levelTwoAutoUpgradeButton,
-                              levelOneHealthUpgradeButton);
+                              levelOneHealthUpgradeButton,
+                              levelOneClickUpgradeButton);
         upgradeRow.setAlignment(Pos.CENTER);
 
         root = new VBox(ROOT_GAP_PADDING_PX,
-                        enemyHealthBar,
+                        healthRow,
                         damageLabel,
                         autoDamageLabel,
                         statsLabel,
@@ -88,6 +103,16 @@ public class GameView
 
         scene = new Scene(root);
         return scene;
+    }
+
+    /**
+     * Gets the enemy health label.
+     *
+     * @return the enemy health label
+     */
+    public Label getEnemyHealthLabel()
+    {
+        return enemyHealthLabel;
     }
 
     /**
@@ -141,6 +166,16 @@ public class GameView
     }
 
     /**
+     * Gets the Level 1 Click Upgrade button.
+     *
+     * @return the Level 1 Click Upgrade button
+     */
+    public Button getLevelOneClickUpgradeButton()
+    {
+        return levelOneClickUpgradeButton;
+    }
+
+    /**
      * Gets the damage label.
      *
      * @return the damage label
@@ -149,6 +184,7 @@ public class GameView
     {
         return damageLabel;
     }
+
 
     /**
      * Gets the auto damage label.

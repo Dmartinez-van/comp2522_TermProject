@@ -4,6 +4,9 @@ import ca.bcit.comp2522.mygame.model.*;
 
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
+import javafx.scene.control.Alert;
+
+import java.util.random.RandomGenerator;
 
 /**
  * Controller class for managing game logic and interactions.
@@ -13,23 +16,28 @@ import javafx.application.Platform;
  */
 public class GameController
 {
-    private static final double   ENEMY_MAX_HEALTH                 = 100.0;
-    private static final double   NO_DAMAGE                        = 0.0;
-    private static final double   MIN_HEALTH                       = 0.0;
-    private static final double   NEW_ENEMY_HEALTH_INCREASE_AMOUNT = 20.0;
-    private static final int      ONE_ENEMY_DEFEATED               = 1;
-    private static final int      GOLD_10_PIECES                   = 10;
-    private static final int      UPGRADE_COST_SUBTRACTION         = -1;
-    private static final int      MIN_UPGRADE_COST                 = 1;
-    private final        GameView view;
-    private final        Player   player;
+    private static final double ENEMY_MAX_HEALTH             = 100.0;
+    private static final double NO_DAMAGE                    = 0.0;
+    private static final double MIN_HEALTH                   = 0.0;
+    private static final double MAX_ENEMY_HEALTH_INCREASE    = 30.0;
+    private static final double MIN_ENEMY_HEALTH_INCREASE    = 5.0;
+    private static final int    ONE_ENEMY_DEFEATED           = 1;
+    private static final int    UPGRADE_COST_SUBTRACTION     = -1;
+    private static final int    MIN_UPGRADE_COST             = 1;
+    private static final int    MAX_KILL_AWARD_UPGRADE_POINT = 3;
+    private static final int    MIN_KILL_AWARD_UPGRADE_POINT = 1;
+    private static final int    STARTING_UPGRADE_POINTS      = 5;
+
+    private final GameView view;
+    private final Player   player;
 
     private AnimationTimer gameLoop;
 
-    private double enemyHealth;
-    private double enemyMaxHealth;
-
-    private long lastTimeNanos;
+    private double  enemyHealth;
+    private double  enemyMaxHealth;
+    private long    lastTimeNanos;
+    private boolean newHighScoreAchieved;
+    private int     highScore;
 
     /**
      * Constructs a GameController with the specified GameView.
@@ -42,8 +50,9 @@ public class GameController
         this.view = view;
 
         player = new Player();
-        player.setStat("upgradePoints", 5); // give some starting upgrade points for testing
+        player.setStat("upgradePoints", STARTING_UPGRADE_POINTS);
 
+        initializeHighScore();
         initializeEnemy();
         initializeHandlers();
         updateStatsLabels();
@@ -64,6 +73,13 @@ public class GameController
         }
     }
 
+    /**
+     * Initialize the high score from persistent storage.
+     */
+    private void initializeHighScore()
+    {
+        highScore = HighScoreManager.load();
+    }
 
     /**
      * Initialize the enemy stats.
@@ -73,7 +89,6 @@ public class GameController
         enemyMaxHealth = ENEMY_MAX_HEALTH;
         enemyHealth    = enemyMaxHealth;
     }
-
 
     /**
      * Initialize event handlers for user interactions.
@@ -91,10 +106,13 @@ public class GameController
 
         view.getLevelOneHealthUpgradeButton()
             .setOnAction(event -> applyLevelOneHealthUpgrade());
+
+        view.getLevelOneClickUpgradeButton()
+            .setOnAction(event -> applyLevelOneClickUpgrade());
     }
 
     /**
-     *
+     * Start the main game loop using AnimationTimer.
      */
     public void startGameLoop()
     {
@@ -187,15 +205,50 @@ public class GameController
 
     /**
      * Reset the enemy for the next round.
+     * Enemy health increase and award for killing are randomized.
      */
     private void resetEnemy()
     {
-        // simple reset for now, later you can scale difficulty
-        enemyMaxHealth = enemyMaxHealth + NEW_ENEMY_HEALTH_INCREASE_AMOUNT;
-        enemyHealth    = enemyMaxHealth;
+        final RandomGenerator rng;
+        final double rngHealthBonus;
+        final int rngUpgradeBonus;
 
+        rng = RandomGenerator.getDefault();
+
+        rngHealthBonus = rng.nextDouble(MIN_ENEMY_HEALTH_INCREASE,
+                                        MAX_ENEMY_HEALTH_INCREASE);
+        System.out.println("DEBUGGING: new enemy max health bonus: " + rngHealthBonus);
+
+        rngUpgradeBonus = rng.nextInt(MIN_KILL_AWARD_UPGRADE_POINT,
+                                      MAX_KILL_AWARD_UPGRADE_POINT);
+        System.out.println("DEBUGGING: upgrade points awarded: " + rngUpgradeBonus);
+
+        enemyMaxHealth += rngHealthBonus;
+        enemyHealth = enemyMaxHealth;
+
+        player.addToStat("upgradePoints", rngUpgradeBonus);
         player.addToStat("enemiesDefeated", ONE_ENEMY_DEFEATED);
-        player.addToStat("gold", GOLD_10_PIECES);
+
+        updateStatsLabels();
+        updateHighScoreIfNeeded();
+    }
+
+    /**
+     * Update the high score if the current enemies defeated exceeds it.
+     */
+    private void updateHighScoreIfNeeded()
+    {
+        final int enemiesDefeated;
+
+        enemiesDefeated = player.getStat("enemiesDefeated");
+
+        System.out.println("Current high score: " + highScore +
+                           ", Enemies defeated: " + enemiesDefeated);
+        if (enemiesDefeated > highScore)
+        {
+            highScore            = enemiesDefeated;
+            newHighScoreAchieved = true;
+        }
     }
 
     /**
@@ -207,7 +260,16 @@ public class GameController
 
         ratio = enemyHealth / enemyMaxHealth;
 
-        Platform.runLater(() -> view.getEnemyHealthBar().setProgress(ratio));
+        view.getEnemyHealthBar().setProgress(ratio);
+
+        final StringBuilder enemyHealthText;
+        enemyHealthText = new StringBuilder();
+        enemyHealthText.append("HP: ")
+                       .append(String.format("%.1f", enemyHealth))
+                       .append(" / ")
+                       .append(String.format("%.1f", enemyMaxHealth));
+
+        view.getEnemyHealthLabel().setText(enemyHealthText.toString());
     }
 
     /**
@@ -216,12 +278,10 @@ public class GameController
     private void updateStatsLabels()
     {
         final Clicker clicker;
-        final int gold;
         final int enemiesDefeated;
         final int upgradePoints;
 
         clicker         = player.getClicker();
-        gold            = player.getStat("gold");
         enemiesDefeated = player.getStat("enemiesDefeated");
         upgradePoints   = player.getStat("upgradePoints");
 
@@ -234,37 +294,10 @@ public class GameController
         // Update overall stats - could be extended if more stats are added later
         final StringBuilder statsText;
         statsText = new StringBuilder();
-        statsText.append("Gold: ").append(gold)
-                 .append("  Enemies: ").append(enemiesDefeated)
-                 .append("  Upgrade Points: ").append(upgradePoints);
+        statsText
+            .append("  Enemies: ").append(enemiesDefeated)
+            .append("  Upgrade Points: ").append(upgradePoints);
         view.getStatsLabel().setText(statsText.toString());
-    }
-
-    /**
-     * Apply the level one auto upgrade to the clicker.
-     */
-    private void applyLevelOneAutoUpgrade()
-    {
-        applyUpgrade("Level 1 Auto",
-                     baseClicker -> new L1AutoClickUpgrade(baseClicker));
-    }
-
-    /**
-     * Apply the level two auto upgrade to the clicker.
-     */
-    private void applyLevelTwoAutoUpgrade()
-    {
-        applyUpgrade("Level 2 Auto",
-                     baseClicker -> new L2AutoClickUpgrade(baseClicker));
-    }
-
-    /**
-     * Apply the level one health upgrade to the clicker.
-     */
-    private void applyLevelOneHealthUpgrade()
-    {
-        applyUpgrade("Level 1 Health",
-                     baseClicker -> new L1HealthUpgrade(baseClicker));
     }
 
     /**
@@ -297,4 +330,83 @@ public class GameController
 
         updateStatsLabels();
     }
+
+    /**
+     * Exit handler to save high score if needed.
+     * And show alert if a new high score was achieved.
+     */
+    public void handleExit()
+    {
+        saveHighScore();
+        showHighScoreAlertIfNeeded();
+    }
+
+    /**
+     * Save the high score to persistent storage.
+     */
+    private void saveHighScore()
+    {
+        System.out.println("Calling high score: to save high score: " + highScore);
+        HighScoreManager.save(highScore);
+    }
+
+    /**
+     * Show an alert if a new high score was achieved.
+     */
+    private void showHighScoreAlertIfNeeded()
+    {
+        if (!newHighScoreAchieved)
+        {
+            return;
+        }
+
+        final int enemiesDefeated;
+        enemiesDefeated = player.getStat("enemiesDefeated");
+
+        final Alert alert;
+
+        alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("New High Score!");
+        alert.setHeaderText("You achieved a new high score!");
+        alert.setContentText("Enemies defeated: " + enemiesDefeated);
+
+        alert.showAndWait();
+    }
+
+    /**
+     * Apply the level one auto upgrade to the clicker.
+     */
+    private void applyLevelOneAutoUpgrade()
+    {
+        applyUpgrade("Level 1 Auto",
+                     baseClicker -> new L1AutoClickUpgrade(baseClicker));
+    }
+
+    /**
+     * Apply the level two auto upgrade to the clicker.
+     */
+    private void applyLevelTwoAutoUpgrade()
+    {
+        applyUpgrade("Level 2 Auto",
+                     baseClicker -> new L2AutoClickUpgrade(baseClicker));
+    }
+
+    /**
+     * Apply the level one health upgrade to the clicker.
+     */
+    private void applyLevelOneHealthUpgrade()
+    {
+        applyUpgrade("Level 1 Health",
+                     baseClicker -> new L1HealthUpgrade(baseClicker));
+    }
+
+    /**
+     * Apply the level one click upgrade to the clicker.
+     */
+    private void applyLevelOneClickUpgrade()
+    {
+        applyUpgrade("Level 1 Click",
+                     baseClicker -> new L1ClickUpgrade(baseClicker));
+    }
+
 }

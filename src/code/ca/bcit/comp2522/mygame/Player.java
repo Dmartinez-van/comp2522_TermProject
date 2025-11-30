@@ -18,7 +18,6 @@ public class Player
 {
     private static final int STARTING_NUM_OF_UPGRADE_POINTS = 0;
     private static final int STARTING_NUMBER_OF_ENEMIES_KILLED = 0;
-    private static final int STARTING_GOLD                     = 0;
     private static final int KEY_NOT_FOUND = 0;
 
     private final Map<String, Integer> stats;
@@ -41,7 +40,6 @@ public class Player
      */
     private void initializeDefaultStats()
     {
-        stats.put("gold", STARTING_GOLD);
         stats.put("enemiesDefeated", STARTING_NUMBER_OF_ENEMIES_KILLED);
         stats.put("upgradePoints", STARTING_NUM_OF_UPGRADE_POINTS);
     }

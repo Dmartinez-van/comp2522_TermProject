@@ -32,21 +32,5 @@ public class L2AutoClickUpgrade extends ClickerDecorator
         newAutoDamagePerSecond = innerClicker.getAutoDamagePerSecond() + ADDED_AUTO_DAMAGE_PER_SECOND;
 
         return newAutoDamagePerSecond;
-    };
-
-    /**
-     * Updates the Clicker's state over time.
-     *
-     * @param deltaSeconds time elapsed since last update in seconds
-     */
-    @Override
-    public void tick(final double deltaSeconds)
-    {
-        innerClicker.tick(deltaSeconds);
-
-        final double extraDamage;
-
-        extraDamage = ADDED_AUTO_DAMAGE_PER_SECOND * deltaSeconds;
-//        System.out.println("L1AutoClickUpgrade adds " + extraDamage + " auto damage.");
     }
 }

@@ -30,11 +30,12 @@ public class AutoClickerApp extends Application
 
         primaryStage.setTitle("Auto Clicker Battler");
         primaryStage.setScene(scene);
+
+        // Checks for highscore, saves if new highscore is reached
+        primaryStage.setOnCloseRequest(event -> controller.handleExit());
+
         primaryStage.show();
 
         controller.startGameLoop();
-
     }
-
-
 }

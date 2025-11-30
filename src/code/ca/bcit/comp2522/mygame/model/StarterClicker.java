@@ -85,15 +85,15 @@ public class StarterClicker implements Clicker
     @Override
     public void tick(final double deltaSeconds)
     {
-        if (autoDamagePerSecond <= NO_DAMAGE)
-        {
-            return;
-        }
-
-        final double damage;
-
-        damage = autoDamagePerSecond * deltaSeconds;
-        System.out.println("Auto-dealt " + damage + " damage over " + deltaSeconds + " seconds.");
+//        if (autoDamagePerSecond <= NO_DAMAGE)
+//        {
+//            return;
+//        }
+//
+//        final double damage;
+//
+//        damage = autoDamagePerSecond * deltaSeconds;
+//        System.out.println("Auto-dealt " + damage + " damage over " + deltaSeconds + " seconds.");
 
     }
 
