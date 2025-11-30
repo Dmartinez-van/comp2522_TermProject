@@ -1,21 +1,21 @@
 package ca.bcit.comp2522.mygame.model;
 
 /**
- * Level 1 Auto Click Upgrade that adds automatic damage per second.
+ * Level 2 Auto Click Upgrade decorator for Clicker that increases automatic damage per second.
  *
  * @author David Martinez
  * @version 1.0
  */
-public class L1AutoClickUpgrade extends ClickerDecorator
+public class L2AutoClickUpgrade extends ClickerDecorator
 {
-    private static final double ADDED_AUTO_DAMAGE_PER_SECOND = 1.0;
+    private static final double ADDED_AUTO_DAMAGE_PER_SECOND = 3.0;
 
     /**
      * Constructs a ClickerDecorator that wraps another Clicker.
      *
      * @param innerClicker the Clicker to be decorated
      */
-    public L1AutoClickUpgrade(final Clicker innerClicker)
+    public L2AutoClickUpgrade(final Clicker innerClicker)
     {
         super(innerClicker);
     }

@@ -1,6 +1,7 @@
 package ca.bcit.comp2522;
 
-import ca.bcit.comp2522.mygame.MyGame;
+import ca.bcit.comp2522.mygame.AutoClickerApp;
+import ca.bcit.comp2522.mygame.AutoClickerLauncher;
 import ca.bcit.comp2522.numbergame.NumberGameLauncher;
 import ca.bcit.comp2522.wordgame.WordGame;
 
@@ -70,10 +71,7 @@ public class Main
             {
                 case "m" ->
                 {
-                    System.out.println("Starting My Game...");
-                    MyGame.runGame();
-
-                    running = false;
+                    AutoClickerLauncher.start();
                 }
 
                 case "n" ->

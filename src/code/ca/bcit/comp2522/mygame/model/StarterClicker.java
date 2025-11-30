@@ -1,5 +1,11 @@
 package ca.bcit.comp2522.mygame.model;
 
+/**
+ * Starter Clicker implementation with initial attributes.
+ *
+ * @author David Martinez
+ * @version 1.0
+ */
 public class StarterClicker implements Clicker
 {
     private static final double INITIAL_DAMAGE_PER_CLICK       = 1.0;
