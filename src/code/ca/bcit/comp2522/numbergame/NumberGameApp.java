@@ -24,7 +24,8 @@ import java.util.Optional;
  */
 public class NumberGameApp extends Application
 {
-    private static final int EMPTY = 0;
+    private static final int EMPTY             = 0;
+    private static final int BUTTON_PADDING_PX = 10;
 
     private Stage primaryStage;
 
@@ -134,9 +135,6 @@ public class NumberGameApp extends Application
      */
     private VBox createLayout(final GridPane grid)
     {
-        final int buttonPaddingPx;
-        buttonPaddingPx = 10;
-
         final Button tryAgainBtn;
         tryAgainBtn = new Button("Try Again");
         tryAgainBtn.setOnAction(e -> game.startNewGame());
@@ -145,11 +143,11 @@ public class NumberGameApp extends Application
         quitBtn = createQuitButton();
 
         final HBox controls;
-        controls = new HBox(buttonPaddingPx, tryAgainBtn, quitBtn);
+        controls = new HBox(BUTTON_PADDING_PX, tryAgainBtn, quitBtn);
 
         final VBox root;
-        root = new VBox(buttonPaddingPx, statusLabel, nextNumberLabel, grid, controls);
-        root.setPadding(new Insets(buttonPaddingPx));
+        root = new VBox(BUTTON_PADDING_PX, statusLabel, nextNumberLabel, grid, controls);
+        root.setPadding(new Insets(BUTTON_PADDING_PX));
 
         return root;
     }
@@ -217,7 +215,7 @@ public class NumberGameApp extends Application
      *
      * @param currentNumber the current number to be placed
      */
-    private void updateNumber(int currentNumber)
+    private void updateNumber(final int currentNumber)
     {
         nextNumberLabel.setText("Next number: " + currentNumber);
     }

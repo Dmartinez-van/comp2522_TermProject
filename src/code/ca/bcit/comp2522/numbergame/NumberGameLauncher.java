@@ -20,9 +20,13 @@ public class NumberGameLauncher
 
     /**
      * Launcher method for the Number Game JavaFX application.
+     * new
      */
     public static void start()
     {
+        // TODO: Replace with new Thread(() -> Application.launch(NumberGameApp.class)).start()) sort of logic
+        //  to allow multiple launches if needed in the future.
+        //  Will require changes to the NumberGameApp class to handle multiple instances.;
         if (launched)
         {
             System.out.println("Number Game can only be launched once per run.\nIf you have complaints about this, please bring it up with Mr. JavaFX.");

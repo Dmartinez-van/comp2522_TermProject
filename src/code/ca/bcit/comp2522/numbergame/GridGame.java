@@ -18,5 +18,5 @@ public interface GridGame
      *
      * @param index the index of the clicked cell
      */
-    void handleCellClick(int index);
+    void handleCellClick(final int index);
 }
