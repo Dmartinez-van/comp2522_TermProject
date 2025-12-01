@@ -40,7 +40,6 @@ public class GameController
     private static final long   INITIAL_NANOSECONDS                  = 0L;
     private static final double HEAL_AMOUNT                          = 4.5;
 
-
     private final GameView     view;
     private final Player       player;
     private final List<Double> recentDpsSamples;
@@ -94,7 +93,6 @@ public class GameController
             throw new IllegalArgumentException("GameView cannot be null.");
         }
     }
-
 
     /**
      * Initialize the high score from persistent storage.

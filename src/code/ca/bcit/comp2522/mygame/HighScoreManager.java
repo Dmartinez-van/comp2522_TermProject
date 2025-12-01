@@ -14,6 +14,7 @@ import java.nio.file.StandardOpenOption;
  */
 public final class HighScoreManager
 {
+    private static final int  DEFAULT_HIGH_SCORE = 0;
     private static final Path HIGH_SCORE_PATH    = Paths.get("src",
                                                              "code",
                                                              "ca",
@@ -21,7 +22,6 @@ public final class HighScoreManager
                                                              "comp2522",
                                                              "mygame",
                                                              "highscore.txt");
-    private static final int  DEFAULT_HIGH_SCORE = 0;
 
     /**
      * Private constructor to prevent instantiation.
@@ -37,7 +37,6 @@ public final class HighScoreManager
      */
     public static int load()
     {
-        System.out.println("Loading high score from " + HIGH_SCORE_PATH + ".");
         if (Files.notExists(HIGH_SCORE_PATH))
         {
             return DEFAULT_HIGH_SCORE;
@@ -68,12 +67,8 @@ public final class HighScoreManager
         {
             final Path parent;
             parent = HIGH_SCORE_PATH.getParent();
-            System.out.println("~~~~");
-            System.out.println("parent: " + parent);
-            System.out.println("Saving high score to " + HIGH_SCORE_PATH + ".");
             if (parent != null && Files.notExists(parent))
             {
-                System.out.println("Creating directories for high score at " + parent + ".");
                 Files.createDirectories(parent);
             }
 

@@ -13,9 +13,9 @@ import java.util.Map;
  */
 public class Player
 {
-    private static final int STARTING_NUM_OF_UPGRADE_POINTS = 10;
+    private static final int STARTING_NUM_OF_UPGRADE_POINTS    = 10;
     private static final int STARTING_NUMBER_OF_ENEMIES_KILLED = 0;
-    private static final int KEY_NOT_FOUND = 0;
+    private static final int KEY_NOT_FOUND                     = 0;
 
     private final Map<String, Integer> stats;
 

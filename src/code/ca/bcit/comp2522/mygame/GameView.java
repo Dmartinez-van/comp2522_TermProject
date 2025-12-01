@@ -120,12 +120,12 @@ public class GameView
 
         final Label upgradeLabel;
         upgradeLabel = new Label("Upgrades:");
-        upgradeRow = new HBox(HBOX_GAP_PADDING_PX,
+        upgradeRow   = new HBox(HBOX_GAP_PADDING_PX,
                                 upgradeLabel,
-                              levelOneAutoUpgradeButton,
-                              levelTwoAutoUpgradeButton,
-                              levelOneHealthUpgradeButton,
-                              levelOneClickUpgradeButton);
+                                levelOneAutoUpgradeButton,
+                                levelTwoAutoUpgradeButton,
+                                levelOneHealthUpgradeButton,
+                                levelOneClickUpgradeButton);
         upgradeRow.setAlignment(Pos.CENTER);
 
         centerColumn = new VBox(ROOT_GAP_PADDING_PX,
@@ -191,7 +191,6 @@ public class GameView
     {
         return playerHealthLabel;
     }
-
 
     /**
      * Gets the enemy health label.
@@ -303,7 +302,7 @@ public class GameView
         return dpsLabel;
     }
 
-/**
+    /**
      * Gets the main scene for the game.
      *
      * @return the constructed Scene
