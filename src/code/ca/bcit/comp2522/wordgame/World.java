@@ -1,10 +1,8 @@
 package ca.bcit.comp2522.wordgame;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.random.RandomGenerator;
 
 /**
  * Word class

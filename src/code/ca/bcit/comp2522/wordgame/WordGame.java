@@ -7,7 +7,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
+import java.util.Comparator;
+import java.util.Collections;
 import java.util.random.RandomGenerator;
 import java.util.stream.Collectors;
 
@@ -19,16 +25,18 @@ import java.util.stream.Collectors;
  */
 public class WordGame
 {
-    private final static int NUM_OF_FACTS            = 3;
-    private final static int MIN_NUM_OF_COUNTRY_DATA = 2;
-    private final static int NONE                    = 0;
-    private final static int NUM_QUESTIONS           = 3;
+    private static final int NUM_OF_FACTS            = 3;
+    private static final int MIN_NUM_OF_COUNTRY_DATA = 2;
+    private static final int NONE                    = 0;
+    private static final int NUM_QUESTIONS           = 3;
 
-    protected final static int LOWER_BOUND       = 0;
-    protected final static int UPPER_BOUND       = 3;
-    protected final static int TYPE_CAPITAL_CITY = 0;
-    protected final static int TYPE_COUNTRY_NAME = 1;
-    protected final static int TYPE_FACT         = 2;
+    protected static final int LOWER_BOUND       = 0;
+    protected static final int UPPER_BOUND       = 3;
+    protected static final int TYPE_CAPITAL_CITY = 0;
+    protected static final int TYPE_COUNTRY_NAME = 1;
+    protected static final int TYPE_FACT     = 2;
+    private static final   int INITIAL_INDEX = 0;
+    private static final int CAPITAL_CITY_NAME_INDEX = 1;
 
     private final List<Question> questions;
     private final List<Country>  countries;
@@ -44,7 +52,8 @@ public class WordGame
      * @param scanner the scanner for user input
      * @throws IOException if input files cannot be read
      */
-    public WordGame(final Scanner scanner) throws IOException
+    public WordGame(final Scanner scanner)
+        throws IOException
     {
         final List<Score> scores;
         final Path inputsPath;
@@ -233,7 +242,8 @@ public class WordGame
      * @param inputsPath the path to the folder containing country data files
      * @return a list of Country objects parsed from the files
      */
-    private static List<Country> loadCountriesFromFolder(final Path inputsPath) throws IOException
+    private static List<Country> loadCountriesFromFolder(final Path inputsPath)
+        throws IOException
     {
         final List<Country> countries;
 
@@ -350,13 +360,11 @@ public class WordGame
         final String capitalCityName;
         final String[] facts;
         final StringBuilder factBuilder;
-        final int initialIndex;
         final int countryNameIndex;
         final int capitalCityNameIndex;
 
-        initialIndex         = 0;
-        countryNameIndex     = initialIndex;
-        capitalCityNameIndex = countryNameIndex + 1;
+        countryNameIndex     = INITIAL_INDEX;
+        capitalCityNameIndex = CAPITAL_CITY_NAME_INDEX;
 
         int factPointer;
 
@@ -371,7 +379,7 @@ public class WordGame
         capitalCityName = countryData[capitalCityNameIndex].trim();
         facts           = new String[NUM_OF_FACTS];
         factBuilder     = new StringBuilder();
-        factPointer     = initialIndex;
+        factPointer     = INITIAL_INDEX;
 
         while (scanner.hasNextLine())
         {

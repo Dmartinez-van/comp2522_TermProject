@@ -23,7 +23,13 @@ final public class Score
     private static final int NONE                     = 0;
     private static final int SINGLE                   = 1;
 
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private static final DateTimeFormatter FORMATTER        = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private static final int               BLOCK_SIZE       = 5;
+    private static final int               DATE_LINE_INDEX  = 0;
+    private static final int               GAMES_LINE_INDEX = 1;
+    private static final int               FACT1_LINE_INDEX = 2;
+    private static final int               FACT2_LINE_INDEX = 3;
+    private static final int               FACT3_LINE_INDEX = 4;
 
     private final LocalDateTime dateTimePlayed;
 
@@ -192,7 +198,7 @@ final public class Score
      */
     private static Score parseScoreBlock(final List<String> blockLines)
     {
-        if (blockLines.size() < 5)
+        if (blockLines.size() < BLOCK_SIZE)
         {
             return null;
         }
@@ -203,11 +209,11 @@ final public class Score
         final String secondLine;
         final String incorrectLine;
 
-        dateLine      = blockLines.get(0).trim();
-        gamesLine     = blockLines.get(1).trim();
-        firstLine     = blockLines.get(2).trim();
-        secondLine    = blockLines.get(3).trim();
-        incorrectLine = blockLines.get(4).trim();
+        dateLine      = blockLines.get(DATE_LINE_INDEX).trim();
+        gamesLine     = blockLines.get(GAMES_LINE_INDEX).trim();
+        firstLine     = blockLines.get(FACT1_LINE_INDEX).trim();
+        secondLine    = blockLines.get(FACT2_LINE_INDEX).trim();
+        incorrectLine = blockLines.get(FACT3_LINE_INDEX).trim();
 
         // Parse Date and Time
         if (!dateLine.startsWith("Date and Time: "))
@@ -250,7 +256,6 @@ final public class Score
                          numCorrectSecondAttempt,
                          numIncorrectTwoAttempts);
     }
-
 
     /**
      * Getter for date and time played
@@ -378,7 +383,6 @@ final public class Score
 
         return builder.toString();
     }
-
 
     /**
      * Returns instance data as a sentence

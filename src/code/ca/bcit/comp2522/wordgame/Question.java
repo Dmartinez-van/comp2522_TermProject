@@ -14,8 +14,15 @@ public class Question
     private final String prompt;
     private final String answer;
 
-    Question(final int questionType,
-             final Country country)
+    /**
+     * Constructs a Question based on the specified question type and country.
+     *
+     * @param questionType the type of question to generate
+     * @param country      the country to base the question on
+     * @throws IllegalArgumentException if the question type is invalid
+     */
+    public Question(final int questionType,
+                    final Country country)
     {
         validateQuestionType(questionType);
 
