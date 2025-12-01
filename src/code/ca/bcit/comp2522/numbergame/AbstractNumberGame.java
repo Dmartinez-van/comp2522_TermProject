@@ -189,8 +189,10 @@ public abstract class AbstractNumberGame implements GridGame
     // Hooks that the concrete GUI class must implement
     protected abstract void onGridUpdated(final int[] gridValues);
 
+    // Called when the current number is updated
     protected abstract void onNumberUpdated(final int currentNumber);
 
+    // Called when the game is over
     protected abstract void onGameOver(final boolean won,
                                        final int impossibleNumber);
 }

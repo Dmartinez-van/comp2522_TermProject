@@ -12,6 +12,8 @@ import java.util.function.IntConsumer;
  */
 public class NumberGameFX extends AbstractNumberGame
 {
+    private static final int IMPOSSIBLE_NUMBER = -1;
+
     private Consumer<int[]>              gridUpdateConsumer;
     private IntConsumer                  numberUpdateConsumer;
     private BiConsumer<Boolean, Integer> gameOverConsumer;
@@ -52,13 +54,11 @@ public class NumberGameFX extends AbstractNumberGame
         // check win
         if (successfulPlacements == CELL_COUNT)
         {
-            final int impossibleNumber;
             final boolean won;
 
-            won              = true;
-            impossibleNumber = -1;
+            won = true;
             recordGameEnd(won);
-            onGameOver(won, impossibleNumber);
+            onGameOver(won, IMPOSSIBLE_NUMBER);
 
             return;
         }

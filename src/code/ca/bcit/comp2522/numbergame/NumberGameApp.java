@@ -26,6 +26,9 @@ public class NumberGameApp extends Application
 {
     private static final int EMPTY             = 0;
     private static final int BUTTON_PADDING_PX = 10;
+    private static final int CELL_WIDTH_PX = 80;
+    private static final int CELL_HEIGHT_PX = 40;
+    private static final int CELL_GAP_PX = 5;
 
     private Stage primaryStage;
 
@@ -96,18 +99,10 @@ public class NumberGameApp extends Application
      */
     private GridPane createGrid()
     {
-        final int cellWidthPx;
-        final int cellHeightPx;
-        final int cellGapPx;
-
-        cellWidthPx  = 80;
-        cellHeightPx = 40;
-        cellGapPx    = 5;
-
         final GridPane grid;
         grid = new GridPane();
-        grid.setHgap(cellGapPx);
-        grid.setVgap(cellGapPx);
+        grid.setHgap(CELL_GAP_PX);
+        grid.setVgap(CELL_GAP_PX);
 
         cells = new Button[AbstractNumberGame.CELL_COUNT];
 
@@ -115,7 +110,7 @@ public class NumberGameApp extends Application
         {
             final Button btn;
             btn = new Button("[]");
-            btn.setPrefSize(cellWidthPx, cellHeightPx);
+            btn.setPrefSize(CELL_WIDTH_PX, CELL_HEIGHT_PX);
 
             final int finalI = i;
             btn.setOnAction(e -> game.handleCellClick(finalI));
