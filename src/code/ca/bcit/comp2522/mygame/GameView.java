@@ -3,6 +3,7 @@ package ca.bcit.comp2522.mygame;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Labeled;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -21,9 +22,9 @@ public class GameView
     private static final double ENEMY_HEALTH_BAR_STARTING_NORMALIZED = 1.0;
     private static final int    ATTACK_BTN_WIDTH_PX                  = 150;
     private static final int    ROOT_GAP_PADDING_PX                  = 15;
-    private static final int ROOT_MARGIN_PX                = 20;
-    private static final int HBOX_GAP_PADDING_PX           = 10;
-    private static final int STARTING_ENEMY_DEFEATED_LABEL = 0;
+    private static final int    ROOT_MARGIN_PX                       = 20;
+    private static final int    HBOX_GAP_PADDING_PX                  = 10;
+    private static final int    STARTING_ENEMY_DEFEATED_LABEL        = 0;
     private static final int    STARTING_UPGRADE_POINTS_LABEL        = 0;
 
     private ProgressBar enemyHealthBar;
@@ -34,6 +35,7 @@ public class GameView
     private Button levelOneHealthUpgradeButton;
     private Button levelOneClickUpgradeButton;
 
+    private Label dpsLabel;
     private Label damageLabel;
     private Label autoDamageLabel;
     private Label statsLabel;
@@ -55,11 +57,13 @@ public class GameView
         enemyHealthBar = new ProgressBar();
         enemyHealthBar.setPrefWidth(ENEMY_HEALTH_BAR_WIDTH_PX);
         enemyHealthBar.setProgress(ENEMY_HEALTH_BAR_STARTING_NORMALIZED);
+        enemyHealthBar.setStyle("-fx-accent: green;");
 
-        // Placeholder label for enemy health
         enemyHealthLabel = new Label("HP: -- / --");
+        dpsLabel = new Label("DPS (last 5s): --");
 
         healthRow = new HBox(HBOX_GAP_PADDING_PX,
+                             dpsLabel,
                              new Label("Enemy Health: "),
                              enemyHealthBar,
                              enemyHealthLabel);
@@ -204,6 +208,16 @@ public class GameView
     public Label getStatsLabel()
     {
         return statsLabel;
+    }
+
+    /**
+     * Gets the DPS label.
+     *
+     * @return the DPS label
+     */
+    public Labeled getDpsLabel()
+    {
+        return dpsLabel;
     }
 }
 

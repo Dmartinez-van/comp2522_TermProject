@@ -3,9 +3,10 @@ package ca.bcit.comp2522.mygame;
 import ca.bcit.comp2522.mygame.model.*;
 
 import javafx.animation.AnimationTimer;
-import javafx.application.Platform;
 import javafx.scene.control.Alert;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.random.RandomGenerator;
 
 /**
@@ -27,12 +28,19 @@ public class GameController
     private static final int    MAX_KILL_AWARD_UPGRADE_POINT = 3;
     private static final int    MIN_KILL_AWARD_UPGRADE_POINT = 1;
     private static final int    STARTING_UPGRADE_POINTS      = 5;
+    private static final double HALF_HEALTH_RATIO            = 0.5;
+    private static final double QUARTER_HEALTH_RATIO         = 0.25;
+    private static final double DPS_WINDOW_SECONDS           = 5.0;
+    private static final double INITIAL_ELAPSED_TIME_SECONDS = 0.0;
+    private static final long NANOS_TO_SECONDS_CONVERT_FACTOR = 1_000_000_000L;
 
-    private final GameView view;
-    private final Player   player;
+    private final GameView          view;
+    private final Player            player;
+    private final List<DamageEvent> damageEvents;
 
     private AnimationTimer gameLoop;
 
+    private double  elapsedTimeSeconds;
     private double  enemyHealth;
     private double  enemyMaxHealth;
     private long    lastTimeNanos;
@@ -49,12 +57,15 @@ public class GameController
         validateView(view);
         this.view = view;
 
-        player = new Player();
-        player.setStat("upgradePoints", STARTING_UPGRADE_POINTS);
+        player       = new Player();
+        damageEvents = new ArrayList<>();
 
         initializeHighScore();
         initializeEnemy();
         initializeHandlers();
+
+        elapsedTimeSeconds = INITIAL_ELAPSED_TIME_SECONDS;
+
         updateStatsLabels();
         updateEnemyBar();
     }
@@ -165,6 +176,39 @@ public class GameController
 
         // simple linear enemy regen or decay could also go here if you want
         updateEnemyBar();
+        updateDpsLabel();
+    }
+
+    /**
+     * Update the DPS label in the UI.
+     */
+    private void updateDpsLabel()
+    {
+        final long nowNanos;
+        final long windowNanos;
+
+        nowNanos = System.nanoTime();
+        windowNanos = (long) (DPS_WINDOW_SECONDS * NANOS_TO_SECONDS_CONVERT_FACTOR);
+
+        // Remove events older than DPS_WINDOW_SECONDS
+        damageEvents.removeIf(event ->
+                                  elapsedTimeSeconds - event.getTimestampNanos() > DPS_WINDOW_SECONDS);
+
+        final double totalRecentDamage;
+
+        totalRecentDamage = damageEvents
+            .stream()
+            .mapToDouble(DamageEvent::getDamageAmount)
+            .sum();
+
+        final double dps;
+
+        dps = totalRecentDamage / DPS_WINDOW_SECONDS;
+
+        view.getDpsLabel()
+            .setText(String.format("DPS (last %.0f s): %.2f",
+                                   DPS_WINDOW_SECONDS,
+                                   dps));
     }
 
     /**
@@ -185,22 +229,39 @@ public class GameController
     /**
      * Deal damage to the enemy.
      *
-     * @param amount amount of damage to deal
+     * @param damageAmount amount of damage to deal
      */
-    private void dealDamage(final double amount)
+    private void dealDamage(final double damageAmount)
     {
-        enemyHealth -= amount;
+        enemyHealth -= damageAmount;
 
         if (enemyHealth < MIN_HEALTH)
         {
             enemyHealth = MIN_HEALTH;
         }
 
+        recordDamageEvent(damageAmount);
+
         if (enemyHealth == MIN_HEALTH)
         {
-            System.out.println("Enemy defeated");
             resetEnemy();
         }
+    }
+
+    /**
+     * Record a damage event for DPS calculation.
+     *
+     * @param damageAmount amount of damage dealt
+     */
+    private void recordDamageEvent(final double damageAmount)
+    {
+        final long nowNanos;
+        final DamageEvent event;
+
+        nowNanos = System.nanoTime();
+        event = new DamageEvent(nowNanos, damageAmount);
+
+        damageEvents.add(event);
     }
 
     /**
@@ -261,6 +322,20 @@ public class GameController
         ratio = enemyHealth / enemyMaxHealth;
 
         view.getEnemyHealthBar().setProgress(ratio);
+
+        // Set color based on health ratio
+        if (ratio > HALF_HEALTH_RATIO)
+        {
+            view.getEnemyHealthBar().setStyle("-fx-accent: green;");
+        }
+        else if (ratio > QUARTER_HEALTH_RATIO)
+        {
+            view.getEnemyHealthBar().setStyle("-fx-accent: orange;");
+        }
+        else
+        {
+            view.getEnemyHealthBar().setStyle("-fx-accent: red;");
+        }
 
         final StringBuilder enemyHealthText;
         enemyHealthText = new StringBuilder();
