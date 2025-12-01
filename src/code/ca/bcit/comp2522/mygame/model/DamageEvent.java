@@ -8,24 +8,24 @@ package ca.bcit.comp2522.mygame.model;
  */
 public class DamageEvent
 {
-    private static final int MIN_NANOSEC = 0;
+    private static final int MIN_SECONDS = 0;
     private static final int MIN_DAMAGE_AMOUNT = 0;
-    private final long timestampNanos;
+    private final long timestampSeconds;
     private final double damageAmount;
 
     /**
      * Constructs a DamageEvent with the specified timestamp and damage amount.
      *
-     * @param timestampNanos the time the damage occurred, in seconds
+     * @param timestampSeconds the time the damage occurred, in seconds
      * @param damageAmount     the amount of damage dealt
      */
-    public DamageEvent(final long timestampNanos,
+    public DamageEvent(final long timestampSeconds,
                        final double damageAmount)
     {
-        validateTimestampNanos(timestampNanos);
+        validateTimestampSeconds(timestampSeconds);
         validateDamageAmount(damageAmount);
 
-        this.timestampNanos = timestampNanos;
+        this.timestampSeconds = timestampSeconds;
         this.damageAmount     = damageAmount;
     }
 
@@ -45,26 +45,24 @@ public class DamageEvent
     /**
      * Validates the time stamp in nanoseconds.
      *
-     * @param timestampNanos the time stamp to validate
+     * @param timestampSeconds the time stamp to validate
      */
-    private void validateTimestampNanos(final long timestampNanos)
+    private void validateTimestampSeconds(final long timestampSeconds)
     {
-        if (timestampNanos < MIN_NANOSEC)
+        if (timestampSeconds < MIN_SECONDS)
         {
             throw new IllegalArgumentException("Timestamp cannot be negative.");
         }
     }
-
-
 
     /**
      * Gets the timestamp of the damage event in seconds.
      *
      * @return the timestamp in seconds
      */
-    public double getTimestampNanos()
+    public double getTimestampSeconds()
     {
-        return timestampNanos;
+        return timestampSeconds;
     }
 
     /**
