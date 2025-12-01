@@ -1,0 +1,25 @@
+Q:
+Also include a prompts.txt text file that explains the best and worst parts of the experience you had trying to communicate with the AI bot and get its help.
+
+Good:
+- Helped draw an outline of what I wanted my game to have and look like. Setup
+  stuff like a launcher, controller, models package, and a gameview right away. Also
+  help template out the decorator components, the Clicker interface, the simple clicker, and
+  the decorative upgrades.
+
+- Helped brainstorm ideas for game features and mechanics when I was stuck. For example, I needed to use 'streams' somewhere,
+  and I needed ideas fast. So I used AI to generate some ideas. A good use case would be DPS counter. I liked the idea,
+  and ran with it.
+
+- Generated code snippets were usually pretty good and only needed minor tweaks to fit into my codebase.
+
+
+Bad:
+- Additions / changes to existing code base usually had me rummaging around to ensure I am not doubling up on logic anywhere.
+
+- Does not follow the best practices we set out to follow in our course (even with prompts/instructions with what the
+  best practices were, it would still fail occasionally).
+
+- Sometimes the AI would misunderstand the requirements or context, leading to irrelevant or incorrect code suggestions.
+
+- Sometimes it would needlessly complicate simple tasks.

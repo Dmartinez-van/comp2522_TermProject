@@ -5,6 +5,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Labeled;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.control.Button;
@@ -18,16 +19,22 @@ import javafx.scene.control.Label;
  */
 public class GameView
 {
-    private static final int    ENEMY_HEALTH_BAR_WIDTH_PX            = 300;
-    private static final double ENEMY_HEALTH_BAR_STARTING_NORMALIZED = 1.0;
-    private static final int    ATTACK_BTN_WIDTH_PX                  = 150;
-    private static final int    ROOT_GAP_PADDING_PX                  = 15;
-    private static final int    ROOT_MARGIN_PX                       = 20;
-    private static final int    HBOX_GAP_PADDING_PX                  = 10;
-    private static final int    STARTING_ENEMY_DEFEATED_LABEL        = 0;
-    private static final int    STARTING_UPGRADE_POINTS_LABEL        = 0;
+    private static final int    ENEMY_HEALTH_BAR_WIDTH_PX        = 300;
+    private static final double STARTING_HEALTH_RATIO_NORMALIZED = 1.0;
+    private static final int    ATTACK_BTN_WIDTH_PX              = 150;
+    private static final int    ROOT_GAP_PADDING_PX              = 15;
+    private static final int    ROOT_MARGIN_PX                   = 20;
+    private static final int    HBOX_GAP_PADDING_PX              = 10;
+    private static final int    STARTING_ENEMY_DEFEATED_LABEL    = 0;
+    private static final int    STARTING_UPGRADE_POINTS_LABEL    = 0;
+    private static final double PLAYER_HEALTH_BAR_HEIGHT_PX      = 150.0;
+    private static final double PLAYER_HEALTH_BAR_WIDTH_PX       = 20.0;
+    private static final int    PLAYER_HEALTH_GAP_PADDING_PX     = 5;
+    private static final double SCENE_WIDTH_PX                   = 750;
+    private static final double SCENE_HEIGHT_PX                  = 350.0;
 
     private ProgressBar enemyHealthBar;
+    private ProgressBar playerHealthBar;
 
     private Button attackButton;
     private Button levelOneAutoUpgradeButton;
@@ -40,7 +47,7 @@ public class GameView
     private Label autoDamageLabel;
     private Label statsLabel;
     private Label enemyHealthLabel;
-
+    private Label playerHealthLabel;
 
     /**
      * Creates and returns the main scene for the game.
@@ -49,18 +56,18 @@ public class GameView
      */
     public Scene createScene()
     {
-        final VBox root;
+        final VBox centerColumn;
         final HBox upgradeRow;
         final HBox healthRow;
-        final Scene scene;
+        final BorderPane root;
 
         enemyHealthBar = new ProgressBar();
         enemyHealthBar.setPrefWidth(ENEMY_HEALTH_BAR_WIDTH_PX);
-        enemyHealthBar.setProgress(ENEMY_HEALTH_BAR_STARTING_NORMALIZED);
+        enemyHealthBar.setProgress(STARTING_HEALTH_RATIO_NORMALIZED);
         enemyHealthBar.setStyle("-fx-accent: green;");
 
         enemyHealthLabel = new Label("HP: -- / --");
-        dpsLabel = new Label("DPS (last 5s): --");
+        dpsLabel         = new Label("DPS (last 5s): --");
 
         healthRow = new HBox(HBOX_GAP_PADDING_PX,
                              dpsLabel,
@@ -69,11 +76,18 @@ public class GameView
                              enemyHealthLabel);
         healthRow.setAlignment(Pos.CENTER);
 
+        playerHealthBar = new ProgressBar();
+        playerHealthBar.setProgress(STARTING_HEALTH_RATIO_NORMALIZED);
+        playerHealthBar.setPrefHeight(PLAYER_HEALTH_BAR_HEIGHT_PX);
+        playerHealthBar.setPrefWidth(PLAYER_HEALTH_BAR_WIDTH_PX);
+        playerHealthBar.setStyle("-fx-accent: blue;");
+        playerHealthLabel = new Label("Player HP: -- / --");
+
         attackButton = new Button("Attack");
         attackButton.setPrefWidth(ATTACK_BTN_WIDTH_PX);
 
-        damageLabel     = new Label("Damage per Click: 1.0 (Magic num)");
-        autoDamageLabel = new Label("Auto damage per second: 0.0 (Magic num)");
+        damageLabel     = new Label("Damage per Click: --");
+        autoDamageLabel = new Label("Auto damage per second: --");
 
         final StringBuilder statsLabelString;
         statsLabelString = new StringBuilder();
@@ -95,19 +109,53 @@ public class GameView
                               levelOneClickUpgradeButton);
         upgradeRow.setAlignment(Pos.CENTER);
 
-        root = new VBox(ROOT_GAP_PADDING_PX,
-                        healthRow,
-                        damageLabel,
-                        autoDamageLabel,
-                        statsLabel,
-                        attackButton,
-                        upgradeRow);
-        root.setPadding(new Insets(ROOT_MARGIN_PX));
-        root.setAlignment(Pos.CENTER);
+        centerColumn = new VBox(ROOT_GAP_PADDING_PX,
+                                healthRow,
+                                damageLabel,
+                                autoDamageLabel,
+                                dpsLabel,
+                                statsLabel,
+                                attackButton,
+                                upgradeRow);
+        centerColumn.setAlignment(Pos.CENTER);
 
-        scene = new Scene(root);
+        final VBox playerHealthBarColumn;
+        playerHealthBarColumn = new VBox(PLAYER_HEALTH_GAP_PADDING_PX,
+                                         playerHealthBar,
+                                         playerHealthLabel);
+        playerHealthBarColumn.setAlignment(Pos.CENTER);
+
+        root = new BorderPane();
+        root.setCenter(centerColumn);
+        root.setLeft(playerHealthBarColumn);
+        root.setPadding(new Insets(ROOT_MARGIN_PX));
+
+        final Scene scene;
+        scene = new Scene(root, SCENE_WIDTH_PX, SCENE_HEIGHT_PX);
+
         return scene;
     }
+
+    /**
+     * Gets the player health bar.
+     *
+     * @return the player health bar
+     */
+    public ProgressBar getPlayerHealthBar()
+    {
+        return playerHealthBar;
+    }
+
+    /**
+     * Gets the player health label.
+     *
+     * @return the player health label
+     */
+    public Label getPlayerHealthLabel()
+    {
+        return playerHealthLabel;
+    }
+
 
     /**
      * Gets the enemy health label.

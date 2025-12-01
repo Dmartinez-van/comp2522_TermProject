@@ -4,6 +4,8 @@ import ca.bcit.comp2522.mygame.model.*;
 
 import javafx.animation.AnimationTimer;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +39,6 @@ public class GameController
     private final List<Double> recentDpsSamples;
 
     private double  damageThisTick;
-    private double  elapsedTimeSeconds;
     private double  enemyHealth;
     private double  enemyMaxHealth;
     private long    lastTimeNanos;
@@ -159,8 +160,6 @@ public class GameController
      */
     private void tick(final double deltaSeconds)
     {
-        damageThisTick = INITIAL_DAMAGE_THIS_TICK;
-
         final Clicker clicker;
 
         clicker = player.getClicker();
@@ -177,6 +176,9 @@ public class GameController
         // simple linear enemy regen or decay could also go here if you want
         updateEnemyBar();
         updateDpsLabel(deltaSeconds);
+
+        // Reset damage this tick for next tick
+        damageThisTick = INITIAL_DAMAGE_THIS_TICK;
     }
 
     /**
@@ -303,38 +305,84 @@ public class GameController
     }
 
     /**
-     * Update the enemy health bar in the UI.
+     * Update a health bar in the UI.
+     *
+     * @param currentHealth the current health value
+     * @param maxHealth     the maximum health value
+     * @param bar           the ProgressBar to update
+     * @param label         the Label to update
      */
-    private void updateEnemyBar()
+    private void updateHealthBar(final double currentHealth,
+                                 final double maxHealth,
+                                 final ProgressBar bar,
+                                 final Label label)
     {
         final double ratio;
 
-        ratio = enemyHealth / enemyMaxHealth;
+        if (maxHealth <= MIN_HEALTH)
+        {
+            bar.setProgress(MIN_HEALTH);
 
-        view.getEnemyHealthBar().setProgress(ratio);
+            final StringBuilder healthText;
+            healthText = new StringBuilder();
+
+            healthText.append("HP: ");
+            healthText.append(MIN_HEALTH);
+            healthText.append(" / ");
+            healthText.append(MIN_HEALTH);
+            label.setText(healthText.toString());
+            return;
+        }
+
+        ratio = currentHealth / maxHealth;
+        bar.setProgress(ratio);
 
         // Set color based on health ratio
         if (ratio > HALF_HEALTH_RATIO)
         {
-            view.getEnemyHealthBar().setStyle("-fx-accent: green;");
+            bar.setStyle("-fx-accent: green;");
         }
         else if (ratio > QUARTER_HEALTH_RATIO)
         {
-            view.getEnemyHealthBar().setStyle("-fx-accent: orange;");
+            bar.setStyle("-fx-accent: orange;");
         }
         else
         {
-            view.getEnemyHealthBar().setStyle("-fx-accent: red;");
+            bar.setStyle("-fx-accent: red;");
         }
 
-        final StringBuilder enemyHealthText;
-        enemyHealthText = new StringBuilder();
-        enemyHealthText.append("HP: ")
-                       .append(String.format("%.1f", enemyHealth))
-                       .append(" / ")
-                       .append(String.format("%.1f", enemyMaxHealth));
+        final StringBuilder healthText;
+        healthText = new StringBuilder();
+        healthText.append("HP: ");
+        healthText.append(String.format("%.1f", currentHealth));
+        healthText.append(" / ");
+        healthText.append(String.format("%.1f", maxHealth));
+        label.setText(healthText.toString());
+    }
 
-        view.getEnemyHealthLabel().setText(enemyHealthText.toString());
+    /**
+     * Update the enemy health bar in the UI.
+     */
+    private void updateEnemyBar()
+    {
+        updateHealthBar(enemyHealth,
+                        enemyMaxHealth,
+                        view.getEnemyHealthBar(),
+                        view.getEnemyHealthLabel());
+    }
+
+    /**
+     * Update the player health bar in the UI.
+     */
+    private void updatePlayerBar()
+    {
+        final Clicker clicker;
+        clicker = player.getClicker();
+
+        updateHealthBar(clicker.getCurrentHealth(),
+                        clicker.getMaxHealth(),
+                        view.getPlayerHealthBar(),
+                        view.getPlayerHealthLabel());
     }
 
     /**

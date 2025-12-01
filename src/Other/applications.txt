@@ -1,0 +1,23 @@
+Lesson 1:	Initializers in class GameView
+
+Lesson 2:	Inheritance in class L1AutoClickUpgrade
+
+Lesson 3:	Abstract in class ClickerDecorator
+
+Lesson 4:	Interface in interface Clicker
+
+Lesson 5:	Maps in class Player
+
+Lesson 6:	Lambdas in class GameController
+
+Lesson 7:	Nested inner class in class GameController
+
+Lesson 8:	Midterm <skip>
+
+Lesson 9:	NIO file handling in class HighScoreManager
+
+Lesson 10:	Streaming in class GameController
+
+Lesson 11:	JavaFX in class GameView
+
+Lesson 12:	JUnit tests in test class PlayerTest 
