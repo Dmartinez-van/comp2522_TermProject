@@ -1,0 +1,56 @@
+.basic-button {
+    -fx-background-color: linear-gradient(#3c7fb1, #28527a);
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6;
+    -fx-padding: 8 14;
+}
+
+.basic-button:hover {
+    -fx-background-color: linear-gradient(#4d9fe0, #2c6a99);
+}
+
+.heal-button {
+    -fx-background-color: linear-gradient(#5ad45a, #3e8d3e);
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-padding: 8 14;
+}
+
+.heal-button:hover {
+    -fx-background-color: linear-gradient(#70f070, #4aaa4a);
+}
+
+.attack-button {
+    -fx-background-color:
+            linear-gradient(#ff4d4d, #b30000), /* bright red to dark */
+            linear-gradient(#ff1a1a, #990000); /* strong fallback gradient */
+    -fx-background-insets: 0, 1;
+    -fx-background-radius: 6;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+    -fx-padding: 10 18;
+    -fx-effect: dropshadow(gaussian, rgba(255,0,0,0.65), 10, 0.2, 0, 0);
+    -fx-cursor: hand;
+    -fx-border-color: #660000;
+    -fx-border-width: 2;
+    -fx-border-radius: 6;
+}
+
+/* Hover: brighter, more aggressive glow */
+.attack-button:hover {
+    -fx-background-color:
+            linear-gradient(#ff6666, #cc0000),
+            linear-gradient(#ff3333, #aa0000);
+    -fx-effect: dropshadow(gaussian, rgba(255,80,80,0.9), 12, 0.3, 0, 0);
+}
+
+/* Press click: small 'punch' downward */
+.attack-button:pressed {
+    -fx-translate-y: 2px;
+    -fx-background-color:
+            linear-gradient(#cc0000, #660000),
+            linear-gradient(#b30000, #4d0000);
+}

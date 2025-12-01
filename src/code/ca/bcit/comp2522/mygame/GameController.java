@@ -1,11 +1,12 @@
 package ca.bcit.comp2522.mygame;
 
-import ca.bcit.comp2522.mygame.model.*;
-
 import javafx.animation.AnimationTimer;
+import javafx.application.Platform;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
+import javafx.stage.Stage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,25 +20,35 @@ import java.util.random.RandomGenerator;
  */
 public class GameController
 {
-    private static final double ENEMY_MAX_HEALTH             = 100.0;
-    private static final double NO_DAMAGE                    = 0.0;
-    private static final double MIN_HEALTH                   = 0.0;
-    private static final double MAX_ENEMY_HEALTH_INCREASE    = 30.0;
-    private static final double MIN_ENEMY_HEALTH_INCREASE    = 5.0;
-    private static final int    ONE_ENEMY_DEFEATED           = 1;
-    private static final int    UPGRADE_COST_SUBTRACTION     = -1;
-    private static final int    MIN_UPGRADE_COST             = 1;
-    private static final int    MAX_KILL_AWARD_UPGRADE_POINT = 3;
-    private static final int    MIN_KILL_AWARD_UPGRADE_POINT = 1;
-    private static final double HALF_HEALTH_RATIO            = 0.5;
-    private static final double QUARTER_HEALTH_RATIO         = 0.25;
-    private static final int    DPS_SAMPLES                  = 60;
-    private static final double INITIAL_DAMAGE_THIS_TICK     = 0.0;
+    private static final double ENEMY_MAX_HEALTH                     = 100.0;
+    private static final double NO_DAMAGE                            = 0.0;
+    private static final double MIN_HEALTH                           = 0.0;
+    private static final double MAX_ENEMY_HEALTH_INCREASE            = 30.0;
+    private static final double MIN_ENEMY_HEALTH_INCREASE            = 5.0;
+    private static final int    ONE_ENEMY_DEFEATED                   = 1;
+    private static final int    UPGRADE_COST_SUBTRACTION             = -1;
+    private static final int    MIN_UPGRADE_COST                     = 1;
+    private static final int    MAX_KILL_AWARD_UPGRADE_POINT         = 3;
+    private static final int    MIN_KILL_AWARD_UPGRADE_POINT         = 1;
+    private static final double HALF_HEALTH_RATIO                    = 0.5;
+    private static final double QUARTER_HEALTH_RATIO                 = 0.25;
+    private static final int    DPS_SAMPLES                          = 60;
+    private static final double INITIAL_DAMAGE_THIS_TICK             = 0.0;
+    private static final double PLAYER_DAMAGE_START_TIMER_SECONDS    = 0.0;
+    private static final double PLAYER_DAMAGE_TAKEN_INTERVAL_SECONDS = 1.5;
+    private static final double PLAYER_DAMAGE_TAKEN_AMOUNT           = 2.0;
+    private static final long   INITIAL_NANOSECONDS                  = 0L;
+    private static final double HEAL_AMOUNT                          = 4.5;
+
 
     private final GameView     view;
     private final Player       player;
     private final List<Double> recentDpsSamples;
 
+    private AnimationTimer gameLoop;
+    private boolean        gameOver;
+
+    private double  timeSinceLastPlayerHit;
     private double  damageThisTick;
     private double  enemyHealth;
     private double  enemyMaxHealth;
@@ -62,10 +73,12 @@ public class GameController
         initializeEnemy();
         initializeHandlers();
 
-        damageThisTick = INITIAL_DAMAGE_THIS_TICK;
+        damageThisTick         = INITIAL_DAMAGE_THIS_TICK;
+        timeSinceLastPlayerHit = PLAYER_DAMAGE_START_TIMER_SECONDS;
 
         updateStatsLabels();
         updateEnemyBar();
+        updatePlayerBar();
     }
 
     /**
@@ -81,6 +94,7 @@ public class GameController
             throw new IllegalArgumentException("GameView cannot be null.");
         }
     }
+
 
     /**
      * Initialize the high score from persistent storage.
@@ -118,6 +132,17 @@ public class GameController
 
         view.getLevelOneClickUpgradeButton()
             .setOnAction(event -> applyLevelOneClickUpgrade());
+
+        view.getHealButton().setOnAction(event ->
+                                         {
+                                             if (gameOver)
+                                             {
+                                                 return;
+                                             }
+
+                                             healPlayer(HEAL_AMOUNT);
+                                         });
+
     }
 
     /**
@@ -125,7 +150,9 @@ public class GameController
      */
     public void startGameLoop()
     {
-        final AnimationTimer gameLoop;
+        lastTimeNanos = INITIAL_NANOSECONDS;
+        gameOver      = false;
+
         gameLoop = new AnimationTimer()
         {
 
@@ -135,6 +162,12 @@ public class GameController
             @Override
             public void handle(final long now)
             {
+                if (gameOver)
+                {
+                    stop();
+                    return;
+                }
+
                 if (lastTimeNanos == NO_NANOSECONDS)
                 {
                     lastTimeNanos = now;
@@ -171,6 +204,14 @@ public class GameController
         if (autoDamage > NO_DAMAGE)
         {
             dealDamage(autoDamage);
+        }
+
+        // Periodic player damage handling
+        timeSinceLastPlayerHit += deltaSeconds;
+        if (timeSinceLastPlayerHit >= PLAYER_DAMAGE_TAKEN_INTERVAL_SECONDS)
+        {
+            damagePlayer(PLAYER_DAMAGE_TAKEN_AMOUNT);
+            timeSinceLastPlayerHit = PLAYER_DAMAGE_START_TIMER_SECONDS;
         }
 
         // simple linear enemy regen or decay could also go here if you want
@@ -216,6 +257,34 @@ public class GameController
 
         view.getDpsLabel()
             .setText(String.format("DPS (avg): %.2f", averageDps));
+    }
+
+    /**
+     * Apply damage to the player and update the UI.
+     *
+     * @param amount positive damage amount to subtract from player health
+     */
+    private void damagePlayer(final double amount)
+    {
+        final Clicker clicker;
+        final double currentHealth;
+        final double newHealth;
+        final double delta;
+
+        clicker = player.getClicker();
+
+        currentHealth = clicker.getCurrentHealth();
+        newHealth     = Math.max(MIN_HEALTH, currentHealth - amount);
+        delta         = newHealth - currentHealth;
+
+        clicker.changeHealth(delta);
+
+        updatePlayerBar();
+
+        if (newHealth <= MIN_HEALTH)
+        {
+            gameOver();
+        }
     }
 
 
@@ -521,5 +590,105 @@ public class GameController
         applyUpgrade("Level 1 Click",
                      baseClicker -> new L1ClickUpgrade(baseClicker));
     }
+
+    /**
+     * Handle game over scenario when player health reaches zero.
+     */
+    private void gameOver()
+    {
+        if (gameOver)
+        {
+            return;
+        }
+
+        gameOver = true;
+
+        if (gameLoop != null)
+        {
+            gameLoop.stop();
+        }
+
+
+        final StringBuilder gameOverMessage;
+
+        gameOverMessage = new StringBuilder();
+        gameOverMessage.append("Your HP reached ")
+                       .append(MIN_HEALTH)
+                       .append("\n")
+                       .append("Enemies defeated: ")
+                       .append(player.getStat("enemiesDefeated"))
+                       .append("\n");
+
+        Platform.runLater(() ->
+                          {
+                              final ButtonType restartButton;
+                              final ButtonType quitButton;
+                              final Alert alert;
+
+                              restartButton = new ButtonType("Restart");
+                              quitButton    = new ButtonType("Quit");
+
+                              alert = new Alert(Alert.AlertType.INFORMATION,
+                                                "",
+                                                restartButton,
+                                                quitButton);
+                              alert.setTitle("Game Over");
+                              alert.setHeaderText("You died!");
+                              alert.setContentText(gameOverMessage.toString());
+
+                              final ButtonType result;
+                              result = alert.showAndWait().orElse(quitButton);
+
+                              if (result == restartButton)
+                              {
+                                  restartGame();
+                                  return;
+                              }
+
+                              // Close the window after the alert (Quit)
+                              final Stage stage;
+                              stage = (Stage) view.getScene().getWindow();
+                              stage.close();
+                          });
+    }
+
+    /**
+     * Restart the game by closing the current window and launching a new instance.
+     */
+    private void restartGame()
+    {
+        final Stage stage;
+        stage = (Stage) view.getScene().getWindow();
+
+        stage.close();  // close old window
+
+        final AutoClickerApp newApp;
+        newApp = new AutoClickerApp();
+
+        try
+        {
+            newApp.start(new Stage());
+        }
+        catch (final Exception e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Heals the player by a positive amount, without exceeding max health.
+     *
+     * @param healAmount the amount to heal
+     */
+    private void healPlayer(final double healAmount)
+    {
+        final Clicker clicker;
+        clicker = player.getClicker();
+
+        clicker.changeHealth(healAmount);  // let Clicker clamp max HP internally if needed
+
+        updatePlayerBar();             // sync the UI using your generic update method
+    }
+
 
 }

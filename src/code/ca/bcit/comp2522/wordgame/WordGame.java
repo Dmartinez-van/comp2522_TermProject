@@ -49,6 +49,7 @@ public class WordGame
         final List<Score> scores;
         final Path inputsPath;
         final LocalDateTime datePlayed;
+        final Path scorePath;
 
         questions    = new ArrayList<>();
         scores       = new ArrayList<>();
@@ -85,7 +86,14 @@ public class WordGame
         }
 
         // Get previous game scores, for later comparison
-        scores.addAll(Score.readScoresFromFile("scores.txt"));
+        scorePath = Paths.get("src",
+                              "code",
+                              "ca",
+                              "bcit",
+                              "comp2522",
+                              "wordgame",
+                              "scores.txt");
+        scores.addAll(Score.readScoresFromFile(scorePath.toString()));
 
         // Get previous high score before playing
         final Score previousHighScore;
@@ -120,7 +128,7 @@ public class WordGame
                                ".");
         }
 
-        Score.appendScoreToFile(gameScore, "scores.txt");
+        Score.appendScoreToFile(gameScore, scorePath.toString());
     }
 
     /**

@@ -1,8 +1,5 @@
 package ca.bcit.comp2522.mygame;
 
-import ca.bcit.comp2522.mygame.model.Clicker;
-import ca.bcit.comp2522.mygame.model.StarterClicker;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;

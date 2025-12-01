@@ -21,22 +21,27 @@ public class GameView
 {
     private static final int    ENEMY_HEALTH_BAR_WIDTH_PX        = 300;
     private static final double STARTING_HEALTH_RATIO_NORMALIZED = 1.0;
-    private static final int    ATTACK_BTN_WIDTH_PX              = 150;
+    private static final int    BASIC_BTN_WIDTH_PX               = 150;
     private static final int    ROOT_GAP_PADDING_PX              = 15;
     private static final int    ROOT_MARGIN_PX                   = 20;
     private static final int    HBOX_GAP_PADDING_PX              = 10;
     private static final int    STARTING_ENEMY_DEFEATED_LABEL    = 0;
     private static final int    STARTING_UPGRADE_POINTS_LABEL    = 0;
-    private static final double PLAYER_HEALTH_BAR_HEIGHT_PX      = 150.0;
-    private static final double PLAYER_HEALTH_BAR_WIDTH_PX       = 20.0;
+    private static final double PLAYER_HEALTH_BAR_HEIGHT_PX      = 20.0;
+    private static final double PLAYER_HEALTH_BAR_WIDTH_PX       = 150.0;
     private static final int    PLAYER_HEALTH_GAP_PADDING_PX     = 5;
+    private static final double ROTATE_CCW_90_DEGREES            = -90.0;
     private static final double SCENE_WIDTH_PX                   = 750;
     private static final double SCENE_HEIGHT_PX                  = 350.0;
+    private static final double SHIFT_PLAYER_HP                  = -65.0;
+
+    private Scene scene;
 
     private ProgressBar enemyHealthBar;
     private ProgressBar playerHealthBar;
 
     private Button attackButton;
+    private Button healButton;
     private Button levelOneAutoUpgradeButton;
     private Button levelTwoAutoUpgradeButton;
     private Button levelOneHealthUpgradeButton;
@@ -70,7 +75,6 @@ public class GameView
         dpsLabel         = new Label("DPS (last 5s): --");
 
         healthRow = new HBox(HBOX_GAP_PADDING_PX,
-                             dpsLabel,
                              new Label("Enemy Health: "),
                              enemyHealthBar,
                              enemyHealthLabel);
@@ -78,16 +82,24 @@ public class GameView
 
         playerHealthBar = new ProgressBar();
         playerHealthBar.setProgress(STARTING_HEALTH_RATIO_NORMALIZED);
+        playerHealthBar.setRotate(ROTATE_CCW_90_DEGREES);
         playerHealthBar.setPrefHeight(PLAYER_HEALTH_BAR_HEIGHT_PX);
         playerHealthBar.setPrefWidth(PLAYER_HEALTH_BAR_WIDTH_PX);
         playerHealthBar.setStyle("-fx-accent: blue;");
+
         playerHealthLabel = new Label("Player HP: -- / --");
+        playerHealthLabel.setTranslateY(SHIFT_PLAYER_HP);
 
         attackButton = new Button("Attack");
-        attackButton.setPrefWidth(ATTACK_BTN_WIDTH_PX);
+        attackButton.setPrefWidth(BASIC_BTN_WIDTH_PX);
+        attackButton.getStyleClass().add("attack-button");
 
         damageLabel     = new Label("Damage per Click: --");
         autoDamageLabel = new Label("Auto damage per second: --");
+
+        healButton = new Button("Heal");
+        healButton.setPrefWidth(BASIC_BTN_WIDTH_PX);
+        healButton.getStyleClass().add("heal-button");
 
         final StringBuilder statsLabelString;
         statsLabelString = new StringBuilder();
@@ -97,12 +109,19 @@ public class GameView
         statsLabelString.append(STARTING_ENEMY_DEFEATED_LABEL);
         statsLabel = new Label(statsLabelString.toString());
 
-        levelOneAutoUpgradeButton   = new Button("Buy Level 1 Auto Click Upgrade");
-        levelTwoAutoUpgradeButton   = new Button("Buy Level 2 Auto Click Upgrade");
-        levelOneHealthUpgradeButton = new Button("Buy Level 1 Health Upgrade");
-        levelOneClickUpgradeButton  = new Button("Buy Level 1 Click Upgrade");
+        levelOneAutoUpgradeButton   = new Button("Buy L1 Auto Click");
+        levelTwoAutoUpgradeButton   = new Button("Buy L2 Auto Click");
+        levelOneHealthUpgradeButton = new Button("Buy L1 Health");
+        levelOneClickUpgradeButton  = new Button("Buy L1 Click");
+        levelOneAutoUpgradeButton.getStyleClass().add("basic-button");
+        levelTwoAutoUpgradeButton.getStyleClass().add("basic-button");
+        levelOneHealthUpgradeButton.getStyleClass().add("basic-button");
+        levelOneClickUpgradeButton.getStyleClass().add("basic-button");
 
+        final Label upgradeLabel;
+        upgradeLabel = new Label("Upgrades:");
         upgradeRow = new HBox(HBOX_GAP_PADDING_PX,
+                                upgradeLabel,
                               levelOneAutoUpgradeButton,
                               levelTwoAutoUpgradeButton,
                               levelOneHealthUpgradeButton,
@@ -116,24 +135,41 @@ public class GameView
                                 dpsLabel,
                                 statsLabel,
                                 attackButton,
+                                healButton,
                                 upgradeRow);
         centerColumn.setAlignment(Pos.CENTER);
 
-        final VBox playerHealthBarColumn;
-        playerHealthBarColumn = new VBox(PLAYER_HEALTH_GAP_PADDING_PX,
-                                         playerHealthBar,
-                                         playerHealthLabel);
-        playerHealthBarColumn.setAlignment(Pos.CENTER);
+        final VBox playerHealthBoxColumn;
+
+        playerHealthBoxColumn = new VBox(PLAYER_HEALTH_GAP_PADDING_PX,
+                                         playerHealthLabel,
+                                         playerHealthBar);
+        playerHealthBoxColumn.setAlignment(Pos.CENTER);
 
         root = new BorderPane();
         root.setCenter(centerColumn);
-        root.setLeft(playerHealthBarColumn);
+        root.setLeft(playerHealthBoxColumn);
+        BorderPane.setAlignment(playerHealthBoxColumn, Pos.CENTER);
         root.setPadding(new Insets(ROOT_MARGIN_PX));
 
-        final Scene scene;
+        // Create the scene
         scene = new Scene(root, SCENE_WIDTH_PX, SCENE_HEIGHT_PX);
 
+        final String cssPath;
+        cssPath = getClass().getResource("gameStyles.css").toExternalForm();
+        scene.getStylesheets().add(cssPath);
+
         return scene;
+    }
+
+    /**
+     * Gets the heal button.
+     *
+     * @return the heal button
+     */
+    public Button getHealButton()
+    {
+        return healButton;
     }
 
     /**
@@ -237,7 +273,6 @@ public class GameView
         return damageLabel;
     }
 
-
     /**
      * Gets the auto damage label.
      *
@@ -266,6 +301,16 @@ public class GameView
     public Labeled getDpsLabel()
     {
         return dpsLabel;
+    }
+
+/**
+     * Gets the main scene for the game.
+     *
+     * @return the constructed Scene
+     */
+    public Scene getScene()
+    {
+        return scene;
     }
 }
 

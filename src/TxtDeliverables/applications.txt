@@ -20,4 +20,4 @@ Lesson 10:	Streaming in class GameController
 
 Lesson 11:	JavaFX in class GameView
 
-Lesson 12:	JUnit tests in test class PlayerTest 
+Lesson 12:	JUnit tests in test class L1AutoClickUpgradeTest

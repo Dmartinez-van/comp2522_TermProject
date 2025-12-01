@@ -1,4 +1,4 @@
-package ca.bcit.comp2522.mygame.model;
+package ca.bcit.comp2522.mygame;
 
 /**
  * Level 1 Click Upgrade that adds damage per click.

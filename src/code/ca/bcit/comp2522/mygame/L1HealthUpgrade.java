@@ -1,4 +1,4 @@
-package ca.bcit.comp2522.mygame.model;
+package ca.bcit.comp2522.mygame;
 
 /**
  * Level 1 Health Upgrade decorator for Clicker that increases max health.

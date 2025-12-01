@@ -1,4 +1,4 @@
-package ca.bcit.comp2522.mygame.model;
+package ca.bcit.comp2522.mygame;
 
 /**
  * Decorator class for Clicker that allows for extending functionality.

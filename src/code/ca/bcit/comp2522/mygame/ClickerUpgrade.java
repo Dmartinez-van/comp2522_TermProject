@@ -1,7 +1,5 @@
 package ca.bcit.comp2522.mygame;
 
-import ca.bcit.comp2522.mygame.model.Clicker;
-
 /**
  * Represents an upgrade that can be applied to a Clicker.
  *

@@ -1,4 +1,4 @@
-package ca.bcit.comp2522.mygame.model;
+package ca.bcit.comp2522.mygame;
 
 /**
  * Interface representing a Clicker entity in the game.
